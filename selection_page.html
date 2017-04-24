@@ -22,6 +22,8 @@
     <!-- Custom styles for this template -->
     <link href="styles/cover.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css"/>
+
 </head>
 <body>
 <div class="site-wrapper">
@@ -40,14 +42,32 @@
                 <h2>If you have loaded multiple datasets...</h2>
 
                 <p class="lead">You will be able to choose which one to visualize from here.</p>
+                <p>
+                <div id="jstree_demo_div">
+                    <ul>
+                        <li data-jstree='{"opened":true,"selected":true}'>Root
+                            <ul>
+                                <li data-jstree='{"disabled":true}'>Child</li>
+                                <li data-jstree='{"icon":"//jstree.com/tree.png"}'>
+                                    Child
+                                </li>
+                                <li data-jstree='{"icon":"glyphicon glyphicon-leaf"}'>
+                                    Child
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                </p>
                 <p class="lead">
-                    <a href="" class="btn btn-lg btn-default">Visualize!</a>
+                    <a href="visualization_page.html" class="btn btn-lg btn-default">Visualize!</a>
                 </p>
             </div>
 
             <div class="mastfoot">
                 <div class="inner">
-                    <p></p>
+                    <p>
+                    </p>
                 </div>
             </div>
 
@@ -61,11 +81,16 @@
  ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
-
+<script>
+    $(function () {
+        $('#jstree_demo_div').jstree();
+    });
+</script>
 </body>
 </html>
