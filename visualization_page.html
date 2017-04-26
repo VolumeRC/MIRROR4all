@@ -8,7 +8,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <link rel="icon" href="favicon.ico">
 
     <title>Viewing your dataset!</title>
 
@@ -23,6 +23,7 @@
     <!-- Custom styles for this template -->
     <link href="styles/cover.css" rel="stylesheet">
 
+    <link href="styles/mirror4all.css" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="styles/x3dom.css"/>
     <script type="text/javascript" src="scripts/x3dom-full.js"></script>
@@ -42,27 +43,29 @@
 
             <div class="inner cover">
                 <h1 class="cover-heading">Viewing</h1>
+                <x3d xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="800px" height="600px" altImg="helloX3D-alt.png">
+                    <scene>
+                        <viewpoint position='0 0 10' ></viewpoint>
+                        <shape>
+                            <appearance>
+                                <material diffuseColor='0.603 0.894 0.909' ></material>
+                            </appearance>
+                            <box DEF='box' ></box>
+                        </shape>
+                    </scene>
+                </x3d>
             </div>
 
             <div class="mastfoot">
                 <div class="inner">
-
-                    <x3d xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="800px" height="600px" altImg="helloX3D-alt.png">
-                        <scene>
-                            <viewpoint position='0 0 10' ></viewpoint>
-                            <shape>
-                                <appearance>
-                                    <material diffuseColor='0.603 0.894 0.909' ></material>
-                                </appearance>
-                                <box DEF='box' ></box>
-                            </shape>
-                        </scene>
-                    </x3d>
-
                 </div>
             </div>
 
         </div>
+        <a class="up carousel-control" href="selection_page.html" role="button">
+            <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
 
     </div>
 
