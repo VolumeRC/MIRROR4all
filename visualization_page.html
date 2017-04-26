@@ -25,8 +25,12 @@
 
     <link href="styles/mirror4all.css" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="styles/x3dom.css"/>
-    <script type="text/javascript" src="scripts/x3dom-full.js"></script>
+    <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/>
+    <script type="text/javascript" src="scripts/x3dom-full.js"></script-->
+
+
+    <link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css" />
+    <script type="text/javascript" src="https://x3dom.org/download/dev/x3dom-full.js"></script>
 
 </head>
 <body>
@@ -42,18 +46,22 @@
             </div>
 
             <div class="inner cover">
-                <h1 class="cover-heading">Viewing</h1>
-                <x3d xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="800px" height="600px" altImg="helloX3D-alt.png">
-                    <scene>
-                        <viewpoint position='0 0 10' ></viewpoint>
-                        <shape>
-                            <appearance>
-                                <material diffuseColor='0.603 0.894 0.909' ></material>
-                            </appearance>
-                            <box DEF='box' ></box>
-                        </shape>
-                    </scene>
-                </x3d>
+                <!--h1 class="cover-heading">Viewing</h1-->
+                <X3D xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="600px" height="600px" altImg="helloX3D-alt.png">
+                    <Scene>
+                        <Background skyColor='0.0 0.0 0.0'></Background>
+                        <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
+                        <Transform>
+                            <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
+                                <ImageTextureAtlas containerField='voxels' url='data/aorta4096.png'
+                                                   numberOfSlices='96' slicesOverX='10' slicesOverY='10'></ImageTextureAtlas>
+                                <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                                    <ImageTexture containerField='transferFunction' url='data/transfer.png'></ImageTexture>
+                                </OpacityMapVolumeStyle>
+                            </VolumeData>
+                        </Transform>
+                    </Scene>
+                </X3D>
             </div>
 
             <div class="mastfoot">
