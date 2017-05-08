@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Welcome to MIRROR4all</title>
+    <meta charset="UTF-8">
+    <!--meta http-equiv="X-UA-Compatible" content="IE=edge"-->
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data/favicon.ico">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="styles/cover.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css"/>
+
+    <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/-->
+    <!--link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css"/-->
+    <script type="text/javascript" src="scripts/x3dom-full.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrap {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background: #111111;
+            color: #fff;
+            text-align: center;
+        }
+
+        header {
+            background: #333333;
+            box-shadow: 0 .5em 1em #222222;
+            position: absolute;
+            top: 0;
+            left: -8%;
+            z-index: 900;
+            height: 100%;
+            width: 10%;
+        }
+
+        header:hover {
+            left: 0;
+        }
+
+        header label {
+            color: #ffffff;
+            cursor: pointer;
+            display: inline-block;
+            line-height: 4.25em;
+            font-size: larger;
+            font-weight: bold;
+            padding: 0 1em;
+            width: 100%;
+            height: 8%;
+        }
+
+        header label:hover {
+            background: #444444;
+        }
+
+        .header-filler {
+            height: 38%;
+        }
+
+        #header-arrow {
+            position: absolute;
+            top: 50%;
+            right: 5%;
+        }
+
+        /*label:hover + #header-arrow {
+            color: red;
+        }*/
+
+        .slide {
+            height: 100%;
+            width: 98%;
+            position: absolute;
+            top: 100%;
+            left: 2%;
+            z-index: 10;
+            padding: 8em 1em 0;
+            background-color: #323232;
+            background-position: 50% 50%;
+            background-size: cover;
+            transition: left 0s .75s;
+        }
+
+        .slide-one {
+            /*background-image: url('data/landing-image.png');*/
+            background-color: #555555;
+        }
+
+        .slide-two {
+            /*background-image: url('data/head.png');*/
+            background-color: #444444;
+        }
+
+        .slide-three {
+            /*background-image: url('data/aorta4096.png');*/
+            background-color: #333333;
+        }
+
+        [id$="trigger"] {
+            visibility: hidden;
+        }
+
+        [id^="slide"]:checked + .slide {
+            top: 0;
+            z-index: 100;
+            transition: top .65s ease-out;
+        }
+
+        .slide div.content {
+            opacity: 0;
+            transform: translateX(100%);
+            transition: transform .5s .5s, opacity .5s;
+        }
+
+        [id^="slide"]:checked + .slide div.content {
+            opacity: 1;
+            transform: translateX(0);
+            transition: all .5s .5s;
+        }
+
+        .hexa, .hexa div {
+            margin: 0 auto;
+            transform-origin: 50% 50%;
+            overflow: hidden;
+        }
+
+        .hexa {
+            width: 325px;
+            height: 230px;
+        }
+
+        .hexa div {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hexa {
+            transform: rotate(120deg);
+        }
+
+        .hex1 {
+            transform: rotate(-60deg);
+        }
+
+        .hex2 {
+            transform: rotate(-60deg);
+        }
+
+        .landing-image h3 {
+            position: absolute;
+            top: 30%;
+            left: 0px;
+            width: 100%;
+            text-shadow: 0px 0px 5px #004488;
+        }
+
+        X3D {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <header>
+        <div class="header-filler"></div>
+        <label for="slide-1-trigger" class="landing-trigger">Welcome</label>
+        <label for="slide-2-trigger" class="selection-trigger">Choose</label>
+        <label for="slide-3-trigger" class="visualization-trigger">View</label>
+        <div class="header-filler"></div>
+        <span id="header-arrow" class="glyphicon glyphicon-chevron-right" aria-hidden="true"
+              style="vertical-align: middle;"></span>
+    </header>
+    <input id="slide-1-trigger" type="radio" name="slides" checked>
+    <section class="slide slide-one">
+        <div class="content">
+            <h1 class="cover-heading">Landing page</h1>
+            <h2>Here you will be able to load your data</h2>
+
+            <div id="DropArea" class="landing-image">
+                <div class="hexa">
+                    <div class="hex1">
+                        <div class="hex2">
+                            <img src="data/landing-image.png" alt="" width="320" height="320"/>
+                            <h3>3D Volume<br/>Drag and Drop</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="lead">With a drag&drop or with a button.</p>
+            <br/><br/>
+            <p class="lead"><input type="file" multiple></p>
+            <!--p class="lead">
+                <label for="slide-2-trigger" class="btn btn-lg btn-default">Load!</label>
+            </p-->
+            <div style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec gravida nulla turpis, eget
+                aliquet nibh finibus vitae. In convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam
+                tristique, libero quis facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et
+                commodo odio. Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
+                lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus porta,
+                ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus purus commodo,
+                pellentesque ipsum eget, placerat turpis.
+            </div>
+            <p class="lead">Choose your data.</p>
+            <label for="slide-2-trigger"><span class="glyphicon glyphicon-chevron-down next-arrow"
+                                               aria-hidden="true"></span></label>
+        </div>
+
+    </section>
+    <input id="slide-2-trigger" type="radio" name="slides">
+    <section class="slide slide-two">
+        <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
+                                           aria-hidden="true"></span></label>
+        <div class="content">
+            <h1 class="cover-heading">Selection page</h1>
+            <h2>If you have loaded multiple datasets...</h2>
+
+            <p class="lead">You will be able to choose which one to visualize from here.</p>
+            <img src="data/head.png" alt="" width="160"/>
+            <p>
+            <div id="jstree_demo_div">
+                <ul>
+                    <li data-jstree='{"opened":true,"selected":true}'>Root
+                        <ul>
+                            <li data-jstree='{"disabled":true}'>Child</li>
+                            <li data-jstree='{"icon":"//jstree.com/tree.png"}'>
+                                Child
+                            </li>
+                            <li data-jstree='{"icon":"glyphicon glyphicon-leaf"}'>
+                                Child
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            </p>
+            <p class="lead">
+                <label for="slide-3-trigger" class="btn btn-lg btn-default">Visualize!</label>
+            </p>
+        </div>
+        <p class="lead">View your data.</p>
+        <label for="slide-3-trigger"><span id="next-arrow" class="glyphicon glyphicon-chevron-down"
+                                           aria-hidden="true"></span></label>
+    </section>
+    <input id="slide-3-trigger" type="radio" name="slides">
+    <section class="slide slide-three">
+        <label for="slide-2-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
+                                           aria-hidden="true"></span></label>
+        <div class="content">
+            <!--div id="DropArea"-->
+                <div id="MyX3DPlaceHolder">
+                    <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
+                         width="100vw" height="100vh" altImg="helloX3D-alt.png">
+                        <Scene id="X3DScene">
+                            <Background skyColor='0.0 0.0 0.0'></Background>
+                            <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
+                            <Transform id="volumeTransform">
+                                <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
+                                    <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
+                                                       slicesOverY='10' id="voxelAtlas" hideChildren="true">
+                                        <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
+                                    </ImageTextureAtlas>
+                                    <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                                        <ImageTexture containerField='transferFunction'
+                                                      url='data/transfer.png'>
+
+                                        </ImageTexture>
+                                    </OpacityMapVolumeStyle>
+                                </VolumeData>
+                            </Transform>
+                        </Scene>
+                    </X3D>
+                </div>
+            <!--/div-->
+        </div>
+    </section>
+</div>
+
+<!-- Bootstrap core JavaScript
+ ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="scripts/dicomParser.js"></script>
+<script type="text/javascript" src="scripts/cornerstone.js"></script>
+<script type="text/javascript" src="scripts/cornerstoneWADOImageLoader.js"></script>
+<script type="text/javascript" src="scripts/dicom2atlas.js"></script>
+<script type="text/javascript" src="scripts/dat.gui.min.js"></script>
+
+<!-- For segmentation -->
+<!--script type="text/javascript" src="scripts/EmscriptenDebug.js"></script-->
+<!--script type="text/javascript" src="scripts/CTThresholdSegmentationAll.js"></script-->
+<!--script type="text/javascript" src="scripts/FileSaver.min.js"></script-->
+<!--script type="text/javascript" src="scripts/Runner.js"></script-->
+
+<script type="text/javascript">
+    var CURRENT_FILES;
+
+    // Prevents the drop target element from triggering default action on dropped files (download)
+    function divallowdrop(event) {
+        event.preventDefault();
+    }
+
+    // Handles multiple DICOM files drop on element and converts them into an atlas
+    function divondrop(event) {
+        // Also needed to prevent the drop target element from triggering default action on dropped files (download)
+        event.stopPropagation();
+        event.preventDefault();
+
+        //Comment out to disable segmentation
+        //Runner.filter.setInputFile(event.dataTransfer.files);
+
+        // Get the number of slices info, to update the ImageTextureAtlas
+        CURRENT_FILES = event.dataTransfer.files;
+        var numberOfSlices = event.dataTransfer.files.length;
+        var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
+            slicesOverY = slicesOverX;
+
+        // Reset the X3D scene declaration, and reload the scene;
+        resetScene(numberOfSlices, slicesOverX, slicesOverY);
+
+        // Resulting canvas containing atlas
+        var voxelCanvas = document.getElementById("voxelCanvas");
+        var voxelContext = voxelCanvas.getContext("2d");
+
+        //Now process the dropped files with dicomParser
+        filesToAtlas(event.dataTransfer.files, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
+    }
+
+    /*
+     * Reset all the scene declaration and reload
+     */
+    function resetScene(numberOfSlices, slicesOverX, slicesOverY) {
+        var myX3D = document.getElementById("MyX3D");
+        var myX3DPlaceHolder = document.getElementById("MyX3DPlaceHolder");
+        //var ORIGINAL_X3DNODE_HTML = myX3DPlaceHolder.innerHTML;// NOTE: If we get it here everything goes black!
+        myX3D.parentNode.removeChild(myX3D);
+        // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
+        myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
+            .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
+            .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
+            .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");
+        // Force reload of scene
+        x3dom.reload();
+    }
+
+    function updateWL(value) {
+        if (CURRENT_FILES !== undefined) {
+            var voxelCanvas = document.getElementById("voxelCanvas");
+            var voxelContext = voxelCanvas.getContext("2d");
+            filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
+        }
+    }
+
+    // Here we pick up the original HTML Code of our X3D Node
+    var ORIGINAL_X3DNODE_HTML = document.getElementById("MyX3DPlaceHolder").innerHTML;
+
+    function bodyonload() {
+        // Set handlers for required drop events
+        document.getElementById("DropArea").addEventListener("drop", divondrop);
+        document.getElementById("DropArea").addEventListener("dragover", divallowdrop);
+
+        var guiWL = new dat.GUI();
+        var wlFolder = guiWL.addFolder('W/L');
+        var windowCenter = wlFolder.add(x3domcontrols, 'windowCenter', -2500, 5000, 1).listen();
+        var windowWidth = wlFolder.add(x3domcontrols, 'windowWidth', 0, 7500, 1).listen();
+        windowCenter.onFinishChange(updateWL);
+        windowWidth.onFinishChange(updateWL);
+        wlFolder.open();
+    }
+    window.addEventListener("load", bodyonload, false);
+</script>
+<!-- The following div is made invisible in order to hide temporary images needed for atlas and TF computation -->
+<div id="InvisibleDiv" style="display:none;background:#888888;width:50%;height:50%">
+    <canvas width='256' height='10' id='tfCanvas'></canvas>
+    <canvas width='256' height='10' id="tfTmpCanvas"></canvas>
+    <canvas width='32' height='32' id="tmpCanvas"></canvas>
+    <div id="fullHistogramHolder" style="width:512px;height:100px;display:none;">
+        <canvas id="fullHistogramCanvas" width="255" height="100"></canvas>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#jstree_demo_div').jstree();
+    });
+</script>
+
+</body>
+</html>
