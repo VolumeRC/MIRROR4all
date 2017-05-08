@@ -259,6 +259,7 @@
                     </li>
                 </ul>
             </div>
+            <div id="jstree_div"></div>
             </p>
             <p class="lead">
                 <label for="slide-3-trigger" class="btn btn-lg btn-default">Visualize!</label>
@@ -314,6 +315,8 @@
         crossorigin="anonymous"></script>
 
 <script type="text/javascript" src="scripts/dicomParser.js"></script>
+<script type="text/javascript" src="scripts/dicomDictionary.js"></script>
+<script type="text/javascript" src="scripts/dicomParserUtils.js"></script>
 <script type="text/javascript" src="scripts/cornerstone.js"></script>
 <script type="text/javascript" src="scripts/cornerstoneWADOImageLoader.js"></script>
 <script type="text/javascript" src="scripts/dicom2atlas.js"></script>
@@ -333,18 +336,134 @@
         event.preventDefault();
     }
 
+    var _jsonDataModel = {};
+    var _total_files = 0;
+    var _files_added = 0;
+    var _incomplete_files = 0;
+    var _invalid_files = 0;
+    var _anon_files = [];
+
+    function destroyJstree(){
+        $('#jstree_div').empty();
+        $('#jstree_div').jstree("destroy");
+    }
+
+    function fillJstree(content){
+        $('#jstree_div').jstree(content);
+    }
+
+    // Draw the jstree according to the parsing of the dropped files
+    function drawTree() {
+        var json_jstree = [];
+        var num_patients = 0;
+        var num_studies = 0;
+        var num_series = 0;
+        var num_slices = 0;
+
+        for (var patient in _jsonDataModel) {
+            num_patients++;
+            json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
+            for (var study in _jsonDataModel[patient].studies) {
+                num_studies++;
+                json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
+                for (var series in _jsonDataModel[patient].studies[study].series) {
+                    num_series++;
+                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "icon" : "' + IMAGE_LEAF + '" }');
+                    num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
+                }
+            }
+        }
+
+        var output = "";
+        for (var element in json_jstree) {
+            output += json_jstree[element] + ",";
+        }
+        output = output.substring(0, output.length - 1);
+
+        // Delete the old tree if it exists
+        destroyJstree();
+
+        // Create the new tree
+        fillJstree(JSON.parse('{"core" : { "data" : [ ' + output + ' ]}, "plugins" : [ "" ]}'));
+    }
+
+
+    // Update the progress bar and the jstree (if applies) according to the parsing of the dropped files
+    function updateTree() {
+        _files_added++;
+
+        // Is this the last file?
+        if (_files_added == _total_files) {
+            _files_added = 0;
+            drawTree();
+        }
+
+    }
+
+    // Anonymize and parse a file
+    function parse_file(file) {
+
+        var reader = new FileReader();
+        reader.onload = function () {
+
+            var arrayBuffer = reader.result;
+            var byteArray = new Uint8Array(arrayBuffer);
+
+            var dataSet;
+            try {
+                dataSet = dicomParser.parseDicom(byteArray);
+
+                // Call the dumpToJson function to create the javascript object which will be used to feed the django model
+                var dump_result = dumpToJson(_jsonDataModel, dataSet);
+
+                if (dump_result == false) {
+                    console.log("incomplete file");
+                    _incomplete_files++;
+                }
+                else {
+                    console.log("valid file");
+
+                    // To enable anonymization: change the 'file' variable for 'file_anon'
+                    file.mirror_seriesuid = dataSet.string(TAG_DICT['SERIESINSTANCEUID']);
+
+                    // To enable anonymization: change the 'file' variable for 'file_anon'
+                    file.mirror_seriesdesc = dataSet.string(TAG_DICT['SERIESDESCRIPTION']);
+
+                    // To enable anonymization: change the 'file' variable for 'file_anon'
+                    _anon_files.push(file);
+                }
+            }
+            catch (err) {
+                console.log("invalid file");
+                _invalid_files++;
+            }
+
+            finally {
+                updateTree();
+            }
+
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
     // Handles multiple DICOM files drop on element and converts them into an atlas
-    function divondrop(event) {
+    function divondrop(dropEvent) {
         // Also needed to prevent the drop target element from triggering default action on dropped files (download)
-        event.stopPropagation();
-        event.preventDefault();
+        dropEvent.stopPropagation();
+        dropEvent.preventDefault();
+
+        var array_of_files = dropEvent.dataTransfer.files;
+        for (var i = 0; i < array_of_files.length; i++) {
+            console.log("file: " + array_of_files[i]);
+            parse_file(array_of_files[i]);
+        }
 
         //Comment out to disable segmentation
         //Runner.filter.setInputFile(event.dataTransfer.files);
 
         // Get the number of slices info, to update the ImageTextureAtlas
-        CURRENT_FILES = event.dataTransfer.files;
-        var numberOfSlices = event.dataTransfer.files.length;
+        CURRENT_FILES = dropEvent.dataTransfer.files;
+        var numberOfSlices = dropEvent.dataTransfer.files.length;
         var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
             slicesOverY = slicesOverX;
 
@@ -356,7 +475,7 @@
         var voxelContext = voxelCanvas.getContext("2d");
 
         //Now process the dropped files with dicomParser
-        filesToAtlas(event.dataTransfer.files, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
+        filesToAtlas(dropEvent.dataTransfer.files, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
     }
 
     /*
