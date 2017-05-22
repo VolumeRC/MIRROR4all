@@ -23,8 +23,59 @@
     <link href="styles/cover.css" rel="stylesheet">
 
     <link href="styles/mirror4all.css" rel="stylesheet">
+    <style>
+        .fullscreen-bg {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: -100;
+        }
+
+        .fullscreen-bg__video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (min-aspect-ratio: 16/9) {
+            .fullscreen-bg__video {
+                height: 300%;
+                top: -100%;
+            }
+        }
+
+        @media (max-aspect-ratio: 16/9) {
+            .fullscreen-bg__video {
+                width: 300%;
+                left: -100%;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .fullscreen-bg {
+                background: url('../img/videoframe.jpg') center center / cover no-repeat;
+            }
+
+            .fullscreen-bg__video {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
+<div class="fullscreen-bg">
+    <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
+        <!--source src="data/big_buck_bunny.webm" type="video/webm">
+        <source src="data/big_buck_bunny.mp4" type="video/mp4">
+        <source src="data/big_buck_bunny.ogv" type="video/ogg"-->
+        <source src="data/x3domDICOM1-480.mov">
+    </video>
+</div>
 <div class="site-wrapper">
 
     <div class="site-wrapper-inner">
@@ -37,38 +88,14 @@
             </div>
 
             <div class="inner cover">
-                <h1 class="cover-heading">Landing page</h1>
-                <h2>Here you will be able to load your data</h2>
-
-                <div class="landing-image">
-                    <div class="hexa">
-                        <div class="hex1">
-                            <div class="hex2">
-                                <img src="data/landing-image.png" alt="" width="320" height="320"/>
-                            </div>
-                        </div>
-                    </div>
-                    <h3>3D Volume<br/>Drag and Drop</h3>
-                </div>
-                <p class="lead">With a drag&drop or with a button.</p>
+                <h1>3D Volume Rendering<br/>Drag and Drop your DICOM files</h1>
 
                 <p class="lead">
-                    <a href="selection_page.html" class="btn btn-lg btn-default">Load!</a>
+                    <a href="main.html" class="btn btn-lg btn-default">Try it!</a>
                 </p>
             </div>
 
-            <div class="mastfoot">
-                <div class="inner">
-                    <p></p>
-                </div>
-            </div>
-
         </div>
-        <a class="down carousel-control" href="selection_page.html" role="button" data-slide="next"
-           style="width: 100%;height: 15%;">
-            <span class="glyphicon glyphicon-chevron-down" aria-hidden="true" style="vertical-align: bottom;"></span>
-            <span class="sr-only" style="vertical-align: bottom;">Next</span>
-        </a>
 
     </div>
 

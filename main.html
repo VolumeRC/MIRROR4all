@@ -189,9 +189,8 @@
 <div class="wrap">
     <header>
         <div class="header-filler"></div>
-        <label for="slide-1-trigger" class="landing-trigger">Welcome</label>
-        <label for="slide-2-trigger" class="selection-trigger">Choose</label>
-        <label for="slide-3-trigger" class="visualization-trigger">View</label>
+        <label for="slide-1-trigger" class="selection-trigger">Choose</label>
+        <label for="slide-2-trigger" class="visualization-trigger">View</label>
         <div class="header-filler"></div>
         <span id="header-arrow" class="glyphicon glyphicon-chevron-right" aria-hidden="true"
               style="vertical-align: middle;"></span>
@@ -199,50 +198,10 @@
     <input id="slide-1-trigger" type="radio" name="slides" checked>
     <section class="slide slide-one">
         <div class="content">
-            <h1 class="cover-heading">Landing page</h1>
-            <h2>Here you will be able to load your data</h2>
-
-            <div id="DropArea" class="landing-image">
-                <div class="hexa">
-                    <div class="hex1">
-                        <div class="hex2">
-                            <img src="data/landing-image.png" alt="" width="320" height="320"/>
-                            <h3>3D Volume<br/>Drag and Drop</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <p class="lead">With a drag&drop or with a button.</p>
-            <br/><br/>
-            <p class="lead"><input type="file" multiple></p>
-            <!--p class="lead">
-                <label for="slide-2-trigger" class="btn btn-lg btn-default">Load!</label>
-            </p-->
-            <div style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec gravida nulla turpis, eget
-                aliquet nibh finibus vitae. In convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam
-                tristique, libero quis facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et
-                commodo odio. Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
-                lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus porta,
-                ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus purus commodo,
-                pellentesque ipsum eget, placerat turpis.
-            </div>
-            <p class="lead">Choose your data.</p>
-            <label for="slide-2-trigger"><span class="glyphicon glyphicon-chevron-down next-arrow"
-                                               aria-hidden="true"></span></label>
-        </div>
-
-    </section>
-    <input id="slide-2-trigger" type="radio" name="slides">
-    <section class="slide slide-two">
-        <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
-                                           aria-hidden="true"></span></label>
-        <div class="content">
-            <h1 class="cover-heading">Selection page</h1>
-            <h2>If you have loaded multiple datasets...</h2>
-
-            <p class="lead">You will be able to choose which one to visualize from here.</p>
-            <img src="data/head.png" alt="" width="160"/>
+            <div class="row">
+                <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
+                <div class="col-md-8">
+            <p class="lead">If you have loaded multiple datasets...<br/>Choose which series to visualize:</p>
             <p>
             <div id="jstree_demo_div">
                 <ul>
@@ -261,17 +220,22 @@
             </div>
             <div id="jstree_div"></div>
             </p>
-            <p class="lead">
-                <label for="slide-3-trigger" class="btn btn-lg btn-default">Visualize!</label>
-            </p>
+
+                <div class="row">
+            <div class="col-md-8" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Donec gravida nulla turpis, eget
+                aliquet nibh finibus vitae. In convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam
+                tristique, libero quis facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et
+                commodo odio. Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
+                lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus porta,
+                ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus purus commodo,
+                pellentesque ipsum eget, placerat turpis.
+            </div></div>
         </div>
-        <p class="lead">View your data.</p>
-        <label for="slide-3-trigger"><span id="next-arrow" class="glyphicon glyphicon-chevron-down"
-                                           aria-hidden="true"></span></label>
     </section>
-    <input id="slide-3-trigger" type="radio" name="slides">
-    <section class="slide slide-three">
-        <label for="slide-2-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
+    <input id="slide-2-trigger" type="radio" name="slides">
+    <section class="slide slide-two">
+        <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
                                            aria-hidden="true"></span></label>
         <div class="content">
             <!--div id="DropArea"-->
