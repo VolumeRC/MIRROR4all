@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Choose the dataset you want to visualize...</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="styles/cover.css" rel="stylesheet">
+
+    <link href="styles/mirror4all.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles/themes/default/style.css"/>
+
+</head>
+<body>
+<div class="site-wrapper">
+
+    <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+            <div id="DropArea" class="inner cover" style="background-color: rgba(128,128,128,0.5);">
+                <p>
+                <div id="jstree_div">
+                    <ul>
+                        <li data-jstree='{"icon":"/"}'>.</li>
+                        <li data-jstree='{"icon":"/"}'>.</li>
+                        <li data-jstree='{"icon":"/"}'>.</li>
+                        <li data-jstree='{"icon":"/","opened":true,"selected":false}'>Drop Your Files here.</li>
+                        <li data-jstree='{"icon":"/"}'>.</li>
+                        <li data-jstree='{"icon":"/"}'>.</li>
+                        <li data-jstree='{"icon":"/"}'>.</li>
+                    </ul>
+                </div>
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bootstrap core JavaScript
+ ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script-->
+
+<script src="scripts/jstree.min.js"></script>
+<script src="scripts/jstreegrid_3.4.2.js"></script>
+
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="scripts/cornerstone.js"></script>
+<script type="text/javascript" src="scripts/dicomParser.js"></script>
+<script type="text/javascript" src="scripts/dicomDictionary.js"></script>
+<script type="text/javascript" src="scripts/dicomParserUtils.js"></script>
+<script type="text/javascript" src="scripts/cornerstoneWADOImageLoader.js"></script>
+<script type="text/javascript" src="scripts/dicom2atlas.js"></script>
+<script type="text/javascript" src="scripts/dat.gui.min.js"></script>
+
+<script type="text/javascript">
+    // Prevents the drop target element from triggering default action on dropped files (download)
+    function divallowdrop(event) {
+        event.preventDefault();
+    }
+
+    var _jsonDataModel = {};
+    var _total_files = 0;
+    var _files_added = 0;
+    var _incomplete_files = 0;
+    var _invalid_files = 0;
+    var _anon_files = [];
+
+    var IMAGE_LEAF = "/data/leaf.png";
+
+    function destroyJstree() {
+        $('#jstree_div').empty();
+        $('#jstree_div').jstree("destroy");
+    }
+
+    function fillJstree(content) {
+        $('#jstree_div').jstree(content);
+    }
+
+    // Draw the jstree according to the parsing of the dropped files
+    function drawTree() {
+        var json_jstree = [];
+        var num_patients = 0;
+        var num_studies = 0;
+        var num_series = 0;
+        var num_slices = 0;
+
+        for (var patient in _jsonDataModel) {
+            num_patients++;
+            json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "type":"patient", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
+            for (var study in _jsonDataModel[patient].studies) {
+                num_studies++;
+                json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "type":"study", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
+                for (var series in _jsonDataModel[patient].studies[study].series) {
+                    num_series++;
+                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series", "icon" : "' + IMAGE_LEAF + '" }');
+                    num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
+                }
+            }
+        }
+
+        var output = "";
+        for (var element in json_jstree) {
+            output += json_jstree[element] + ",";
+        }
+        output = output.substring(0, output.length - 1);
+
+        // Delete the old tree if it exists
+        destroyJstree();
+
+        // Create the new tree
+        var str = '';
+        str += '{';
+        str += '  "core" : {';
+        str += '    "multiple" : false,';
+        str += '    "data" : [ ' + output + ' ],';
+        str += '    "variant" : "large",';
+        str += '  },';
+        str += '  "checkbox": { "three_state": false },';
+        str += '  "plugins" : [ "grid", "types", "ui" ],';
+        str += '  "types" : {';
+        str += '    "patient" : {"icon" : "/static/radmove_view/images/user.png"},';
+        str += '    "study" : {"icon" : "/static/radmove_view/images/study.png"},';
+        str += '    "series" : {"icon" : "/static/radmove_view/images/series.png"},';
+        str += '  },';
+        str += '  "search" : { "show_only_matches" : true, "show_only_matches_children" : true},';
+        str += '  "grid" : {';
+        str += '    "columns": [';
+        str += '      {"width": 390, "header": "Cases"},';
+        str += '      {"width": 70, "header": "Sex", "value": "sex"},';
+        str += '      {"width": 70, "header": "Age", "value": "age"},';
+        str += '      {"width": 75, "header": "Studies", "value": "num_children"},';
+        str += '      {"width": 70, "header": "Series", "value": "num_series"},';
+        str += '      {"width": 180, "header": "Institution", "value": "institution"},';
+        str += '      {"width": 110, "header": "Acq. date", "value": "datetime"},';
+        str += '      {"width": 75, "header": "Images", "value": "num_images"},';
+        str += '      {"width": 75, "header": "Modality", "value": "modality"},';
+        str += '      {"width": 75, "header": "Descriptors", "value": "descriptors"}';
+        str += '    ]';
+        str += '  }';
+        str += '}';
+        //str = '{"core" : { "data" : [ ' + output + ' ]}, "plugins" : [ "" ]}'
+        fillJstree(JSON.parse(str));
+    }
+
+
+    // Update the progress bar and the jstree (if applies) according to the parsing of the dropped files
+    function updateTree() {
+        _files_added++;
+
+        // Is this the last file?
+        if (_files_added == _total_files) {
+            _files_added = 0;
+            drawTree();
+        }
+
+    }
+
+    // Anonymize and parse a file
+    function parse_file(file) {
+
+        var reader = new FileReader();
+        reader.onload = function () {
+
+            var arrayBuffer = reader.result;
+            var byteArray = new Uint8Array(arrayBuffer);
+
+            var dataSet;
+            try {
+                dataSet = dicomParser.parseDicom(byteArray);
+
+                // Call the dumpToJson function to create the javascript object which will be used to feed the django model
+                var dump_result = dumpToJson(_jsonDataModel, dataSet);
+
+                if (dump_result == false) {
+                    console.log("incomplete file");
+                    _incomplete_files++;
+                }
+                else {
+                    console.log("valid file");
+
+                    // To enable anonymization: change the 'file' variable for 'file_anon'
+                    file.mirror_seriesuid = dataSet.string(TAG_DICT['SERIESINSTANCEUID']);
+
+                    // To enable anonymization: change the 'file' variable for 'file_anon'
+                    file.mirror_seriesdesc = dataSet.string(TAG_DICT['SERIESDESCRIPTION']);
+
+                    // To enable anonymization: change the 'file' variable for 'file_anon'
+                    _anon_files.push(file);
+                }
+            }
+            catch (err) {
+                console.log("invalid file");
+                _invalid_files++;
+            }
+
+            finally {
+                updateTree();
+            }
+
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // Handles multiple DICOM files drop on element and converts them into an atlas
+    function divondrop(dropEvent) {
+        // Also needed to prevent the drop target element from triggering default action on dropped files (download)
+        dropEvent.stopPropagation();
+        dropEvent.preventDefault();
+        _total_files = dropEvent.dataTransfer.files.length;
+        var array_of_files = dropEvent.dataTransfer.files;
+        for (var i = 0; i < array_of_files.length; i++) {
+            console.log("file: " + array_of_files[i]);
+            parse_file(array_of_files[i]);
+        }
+
+        //Comment out to disable segmentation
+        //Runner.filter.setInputFile(event.dataTransfer.files);
+    }
+
+    function bodyonload() {
+        // Set handlers for required drop events
+        document.getElementById("DropArea").addEventListener("drop", divondrop);
+        document.getElementById("DropArea").addEventListener("dragover", divallowdrop);
+        //$('#jstree_div').jstree();
+        /*$('#jstree_div').on('changed.jstree', function (e, data) {
+         var i, j, r = [];
+         for(i = 0, j = data.selected.length; i < j; i++) {
+         r.push(data.instance.get_node(data.selected[i]).text);
+         }
+         console.log('Selected: ' + r.join(', '));
+         }).jstree({
+         //"core" : {"themes" : {"variant" : "default"}},
+         "plugins" : [ "wholerow" ]
+         });*/
+        $('#jstree_div').jstree({
+            "core": {
+                "multiple": false,
+                //"data" : JSON.parse('[' + json_jstree + ']'),
+                "variant": "large",
+            },
+            "checkbox": {"three_state": false},
+            "plugins": ["grid", "types", "ui"],
+            "types": {
+                "patient": {"icon": "/static/radmove_view/images/user.png"},
+                "study": {"icon": "/static/radmove_view/images/study.png"},
+                "series": {"icon": "/static/radmove_view/images/series.png"},
+            },
+            "search": {"show_only_matches": true, "show_only_matches_children": true},
+            "grid": {
+                columns: [
+                    {width: 390, header: "Cases"},
+                    {width: 70, header: "Sex", value: "sex"},
+                    {width: 70, header: "Age", value: "age"},
+                    {width: 75, header: "Studies", value: "num_children"},
+                    {width: 70, header: "Series", value: "num_series"},
+                    {width: 180, header: "Institution", value: "institution"},
+                    {width: 110, header: "Acq. date", value: "datetime"},
+                    {width: 75, header: "Images", value: "num_images"},
+                    {width: 75, header: "Modality", value: "modality"},
+                    {width: 75, header: "Descriptors", value: "descriptors"}
+                ]
+            }
+        });
+        $('#jstree_div').jstree().grid_hide_column(9);
+
+        $('#jstree_div').on("select_node.jstree", function (e, data) {
+            if (data.node.type == 'series') {
+                url = "/en/view/view_series/" + data.node.id + "/";
+                $(location).attr('href', url);
+            }
+        });
+
+    }
+    window.addEventListener("load", bodyonload, false);
+</script>
+
+
+</body>
+</html>
