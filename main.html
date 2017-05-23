@@ -25,6 +25,10 @@
     <!--link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css"/-->
     <script type="text/javascript" src="scripts/x3dom-full.js"></script>
 
+    <script src="https://cdn.rawgit.com/Download/polymer-cdn/1.7.0.2/lib/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="https://cdn.rawgit.com/Download/polymer-cdn/1.7.0.2/lib/polymer/polymer.html">
+    <link rel="import" href="https://cdn.rawgit.com/VolumeRC/tf-editor/v0.1.0/dist/tf-editor.html">
+
     <style>
         html, body {
             height: 100%;
@@ -74,26 +78,12 @@
             background: #444444;
         }
 
-        .header-filler {
-            height: 38%;
-        }
-
-        #header-arrow {
-            position: absolute;
-            top: 50%;
-            right: 5%;
-        }
-
-        /*label:hover + #header-arrow {
-            color: red;
-        }*/
-
         .slide {
             height: 100%;
-            width: 98%;
+            width: 100%;
             position: absolute;
             top: 100%;
-            left: 2%;
+            left: 0%;
             z-index: 10;
             padding: 8em 1em 0;
             background-color: #323232;
@@ -103,18 +93,11 @@
         }
 
         .slide-one {
-            /*background-image: url('data/landing-image.png');*/
             background-color: #555555;
         }
 
         .slide-two {
-            /*background-image: url('data/head.png');*/
             background-color: #444444;
-        }
-
-        .slide-three {
-            /*background-image: url('data/aorta4096.png');*/
-            background-color: #333333;
         }
 
         [id$="trigger"] {
@@ -139,48 +122,18 @@
             transition: all .5s .5s;
         }
 
-        .hexa, .hexa div {
-            margin: 0 auto;
-            transform-origin: 50% 50%;
-            overflow: hidden;
-        }
-
-        .hexa {
-            width: 325px;
-            height: 230px;
-        }
-
-        .hexa div {
-            width: 100%;
-            height: 100%;
-        }
-
-        .hexa {
-            transform: rotate(120deg);
-        }
-
-        .hex1 {
-            transform: rotate(-60deg);
-        }
-
-        .hex2 {
-            transform: rotate(-60deg);
-        }
-
-        .landing-image h3 {
-            position: absolute;
-            top: 30%;
-            left: 0px;
-            width: 100%;
-            text-shadow: 0px 0px 5px #004488;
-        }
-
         X3D {
             position: absolute;
             width: 100vw;
             height: 100vh;
             top: 0;
             left: 0;
+        }
+
+        #MyX3DPlaceHolder {
+            display: flex;
+            align-items: center;
+            width: 500px;
         }
     </style>
 </head>
@@ -229,7 +182,6 @@
         <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
                                            aria-hidden="true"></span></label>
         <div class="content">
-            <!--div id="DropArea"-->
                 <div id="MyX3DPlaceHolder">
                     <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
                          width="100vw" height="100vh" altImg="helloX3D-alt.png">
@@ -243,17 +195,20 @@
                                         <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
                                     </ImageTextureAtlas>
                                     <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
-                                        <ImageTexture containerField='transferFunction'
-                                                      url='data/transfer.png'>
-
+                                        <ImageTexture containerField='transferFunction'>
                                         </ImageTexture>
                                     </OpacityMapVolumeStyle>
                                 </VolumeData>
                             </Transform>
                         </Scene>
                     </X3D>
+                    <div style="margin-left: 10px;top: 0;position: absolute;">
+                        <tf-editor id="tf" width="400" x3dom-selector="#volume3"></tf-editor>
+                    </div>
+                    <script>
+                        x3dom.reload();
+                    </script>
                 </div>
-            <!--/div-->
         </div>
     </section>
 </div>
