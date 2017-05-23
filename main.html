@@ -187,14 +187,6 @@
 <body>
 
 <div class="wrap">
-    <header>
-        <div class="header-filler"></div>
-        <label for="slide-1-trigger" class="selection-trigger">Choose</label>
-        <label for="slide-2-trigger" class="visualization-trigger">View</label>
-        <div class="header-filler"></div>
-        <span id="header-arrow" class="glyphicon glyphicon-chevron-right" aria-hidden="true"
-              style="vertical-align: middle;"></span>
-    </header>
     <input id="slide-1-trigger" type="radio" name="slides" checked>
     <section class="slide slide-one">
         <div class="content">
@@ -323,6 +315,7 @@
         $('#jstree_div').on("select_node.jstree", function (e, data) {
             if (data.node.type == 'series') {
                 console.log("View series" + data.node.id + "requested");
+                $('#slide-2-trigger').click();
             }
         });
     }
