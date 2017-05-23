@@ -146,16 +146,19 @@
             <div class="row">
                 <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
                 <div class="col-md-8">
-            <p class="lead">Drop your files below and pick the series you want to visualize:</p>
-            <p>
-                <div id="DropArea" class="inner cover" style="text-align: left;background-color: rgba(128,128,128,0.5);">
+                    <p class="lead">Drop your files below and pick the series you want to visualize:</p>
+                    <p>
+                        <div id="DropArea" class="inner cover"
+                             style="text-align: left;background-color: rgba(128,128,128,0.5);">
                     <p>
                     <div id="jstree_div">
                         <ul>
                             <li data-jstree='{"icon":"data/series.png"}'>.</li>
                             <li data-jstree='{"icon":"data/series.png"}'>.</li>
                             <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                            <li data-jstree='{"icon":"data/series.png","opened":true,"selected":false}'>Drop Your Files here.</li>
+                            <li data-jstree='{"icon":"data/series.png","opened":true,"selected":false}'>Drop Your Files
+                                here.
+                            </li>
                             <li data-jstree='{"icon":"data/series.png"}'>.</li>
                             <li data-jstree='{"icon":"data/series.png"}'>.</li>
                             <li data-jstree='{"icon":"data/series.png"}'>.</li>
@@ -163,52 +166,59 @@
                     </div>
                     </p>
                 </div>
-            </p>
+                </p>
 
                 <div class="row">
-            <div class="col-md-8" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Donec gravida nulla turpis, eget
-                aliquet nibh finibus vitae. In convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam
-                tristique, libero quis facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et
-                commodo odio. Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
-                lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus porta,
-                ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus purus commodo,
-                pellentesque ipsum eget, placerat turpis.
-            </div></div>
-        </div>
+                    <div class="col-md-8" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
+                        consectetur adipiscing elit.
+                        Donec gravida nulla turpis, eget
+                        aliquet nibh finibus vitae. In convallis diam a sem luctus fermentum. Vivamus sed lectus nunc.
+                        Nullam
+                        tristique, libero quis facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna.
+                        Etiam et
+                        commodo odio. Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam
+                        eros nisl,
+                        lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus
+                        porta,
+                        ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus purus
+                        commodo,
+                        pellentesque ipsum eget, placerat turpis.
+                    </div>
+                </div>
+            </div>
     </section>
     <input id="slide-2-trigger" type="radio" name="slides">
     <section class="slide slide-two">
         <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
                                            aria-hidden="true"></span></label>
         <div class="content">
-                <div id="MyX3DPlaceHolder">
-                    <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
-                         width="100vw" height="100vh" altImg="helloX3D-alt.png">
-                        <Scene id="X3DScene">
-                            <Background skyColor='0.0 0.0 0.0'></Background>
-                            <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
-                            <Transform id="volumeTransform">
-                                <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
-                                    <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
-                                                       slicesOverY='10' id="voxelAtlas" hideChildren="true">
-                                        <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
-                                    </ImageTextureAtlas>
-                                    <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
-                                        <ImageTexture containerField='transferFunction'>
-                                        </ImageTexture>
-                                    </OpacityMapVolumeStyle>
-                                </VolumeData>
-                            </Transform>
-                        </Scene>
-                    </X3D>
-                    <div style="margin-left: 10px;top: 0;position: absolute;">
-                        <tf-editor id="tf" width="400" x3dom-selector="#volume3"></tf-editor>
-                    </div>
-                    <script>
-                        x3dom.reload();
-                    </script>
+            <div id="MyX3DPlaceHolder">
+                <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
+                     width="100vw" height="100vh" altImg="helloX3D-alt.png">
+                    <Scene id="X3DScene">
+                        <Background skyColor='0.0 0.0 0.0'></Background>
+                        <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
+                        <Transform id="volumeTransform">
+                            <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
+                                <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
+                                                   slicesOverY='10' id="voxelAtlas" hideChildren="true">
+                                    <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
+                                </ImageTextureAtlas>
+                                <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                                    <ImageTexture containerField='transferFunction'>
+                                    </ImageTexture>
+                                </OpacityMapVolumeStyle>
+                            </VolumeData>
+                        </Transform>
+                    </Scene>
+                </X3D>
+                <div style="margin-left: 10px;top: 0;position: absolute;">
+                    <tf-editor id="tf" width="400" x3dom-selector="#volume3"></tf-editor>
                 </div>
+                <script>
+                    x3dom.reload();
+                </script>
+            </div>
         </div>
     </section>
 </div>
@@ -253,24 +263,46 @@
     var _jsonDataModel = {};
     var _total_files = 0;
     var _files_added = 0;
-    var _incomplete_files = 0;
-    var _invalid_files = 0;
-    var _anon_files = [];
+    var _all_files = {};
 
-    function destroyJstree(){
+    function destroyJstree() {
         $('#jstree_div').empty();
         $('#jstree_div').jstree("destroy");
     }
 
-    function fillJstree(content){
+    function fillJstree(content) {
         $('#jstree_div').jstree(content);
 
         $('#jstree_div').jstree().grid_hide_column(9);
 
         $('#jstree_div').on("select_node.jstree", function (e, data) {
             if (data.node.type == 'series') {
-                console.log("View series" + data.node.id + "requested");
+                //console.log("View series" + data.node.id + "requested");
                 $('#slide-2-trigger').click();
+
+                CURRENT_FILES = [];
+                for(var patient_id in _all_files){
+                    for(var study_id in _all_files[patient_id]){
+                        for(var series_id in _all_files[patient_id][study_id]){
+                            if(series_id == data.node.id)
+                                CURRENT_FILES = _all_files[patient_id][study_id][series_id];
+                        }
+                    }
+                }
+                var numberOfSlices = CURRENT_FILES.length;
+                var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
+                    slicesOverY = slicesOverX;
+
+                // Reset the X3D scene declaration, and reload the scene;
+                resetScene(numberOfSlices, slicesOverX, slicesOverY);
+
+                // Resulting canvas containing atlas
+                var voxelCanvas = document.getElementById("voxelCanvas");
+                var voxelContext = voxelCanvas.getContext("2d");
+
+                //Now process the dropped files with dicomParser
+                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
+
             }
         });
     }
@@ -363,33 +395,22 @@
             var arrayBuffer = reader.result;
             var byteArray = new Uint8Array(arrayBuffer);
 
-            var dataSet;
             try {
-                dataSet = dicomParser.parseDicom(byteArray);
-
-                // Call the dumpToJson function to create the javascript object which will be used to feed the django model
+                var dataSet = dicomParser.parseDicom(byteArray);
                 var dump_result = dumpToJson(_jsonDataModel, dataSet);
 
                 if (dump_result == false) {
-                    console.log("incomplete file");
-                    _incomplete_files++;
+                    // incomplete file
                 }
-                else {
-                    console.log("valid file");
-
-                    // To enable anonymization: change the 'file' variable for 'file_anon'
-                    file.mirror_seriesuid = dataSet.string(TAG_DICT['SERIESINSTANCEUID']);
-
-                    // To enable anonymization: change the 'file' variable for 'file_anon'
-                    file.mirror_seriesdesc = dataSet.string(TAG_DICT['SERIESDESCRIPTION']);
-
-                    // To enable anonymization: change the 'file' variable for 'file_anon'
-                    _anon_files.push(file);
+                else { // valid file
+                    (_all_files[dump_result[0]] === undefined) ? _all_files[dump_result[0]] = {} : {};
+                    (_all_files[dump_result[0]][dump_result[1]] === undefined) ? _all_files[dump_result[0]][dump_result[1]] = {} : {};
+                    (_all_files[dump_result[0]][dump_result[1]][dump_result[2]] === undefined) ? _all_files[dump_result[0]][dump_result[1]][dump_result[2]] = [] : [];
+                    _all_files[dump_result[0]][dump_result[1]][dump_result[2]].push(file);
                 }
             }
             catch (err) {
-                console.log("invalid file");
-                _invalid_files++;
+                //invalid file
             }
 
             finally {

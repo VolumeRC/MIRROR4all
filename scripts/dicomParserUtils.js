@@ -3,43 +3,8 @@
 var UNKNOWN_DATE = "1900-01-01";
 var UNKNOWN_MICROSECONDS = ".000Z";
 var UNKNOWN_TIME = "00:00:00" + UNKNOWN_MICROSECONDS;
-var UNKNOWN_DATETIME = UNKNOWN_DATE + "T" + UNKNOWN_TIME;
 var UNKNOWN_STRING = "unknown";
 var UNKNOWN_QUANTITY = "00";
-
-// Formats the study date and the series date as the django model expects
-function parseDateTimeAsArray(the_date, the_time) {
-    // TO DO: check if this function matches the standard
-
-    var output_date = [];
-
-    if (the_date.length === 8) {
-        //The date format is correct
-        var year = the_date.substring(0, 4);
-        var month = the_date.substring(4, 6);
-        var days = the_date.substring(6, 8);
-        output_date.push(year);
-        output_date.push(month);
-        output_date.push(days);
-
-        if (the_time.length > 5) {
-            //The time format is correct (at least hours, minutes and seconds)
-            var hours = the_time.substring(0, 2);
-            var minutes = the_time.substring(2, 4);
-            var seconds = the_time.substring(4, 6);
-            output_date.push(hours);
-            output_date.push(minutes);
-            output_date.push(seconds);
-            if (the_time.length > 7) {
-                var microseconds = the_time.substring(7, the_time.length);
-                output_date.push(microseconds);
-            }
-        }
-    }
-
-    return output_date;
-}
-
 
 // Formats the study date and the series date as the django model expects
 function parseDateTimeAsString(the_date, the_time) {
@@ -165,5 +130,5 @@ function dumpToJson(jsonDataModel, dataSet) {
 
     jsonDataModel[patient_id]['studies'][study_id]['series'][series_id]["number_slices"]++;
 
-    return true;
+    return [patient_id, study_id, series_id];
 }
