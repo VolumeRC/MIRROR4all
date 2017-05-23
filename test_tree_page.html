@@ -38,13 +38,13 @@
                 <p>
                 <div id="jstree_div">
                     <ul>
-                        <li data-jstree='{"icon":"/"}'>.</li>
-                        <li data-jstree='{"icon":"/"}'>.</li>
-                        <li data-jstree='{"icon":"/"}'>.</li>
-                        <li data-jstree='{"icon":"/","opened":true,"selected":false}'>Drop Your Files here.</li>
-                        <li data-jstree='{"icon":"/"}'>.</li>
-                        <li data-jstree='{"icon":"/"}'>.</li>
-                        <li data-jstree='{"icon":"/"}'>.</li>
+                        <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                        <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                        <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                        <li data-jstree='{"icon":"data/series.png","opened":true,"selected":false}'>Drop Your Files here.</li>
+                        <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                        <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                        <li data-jstree='{"icon":"data/series.png"}'>.</li>
                     </ul>
                 </div>
                 </p>
@@ -101,6 +101,15 @@
 
     function fillJstree(content) {
         $('#jstree_div').jstree(content);
+
+        $('#jstree_div').jstree().grid_hide_column(9);
+
+        $('#jstree_div').on("select_node.jstree", function (e, data) {
+            if (data.node.type == 'series') {
+                console.log("View series" + data.node.id + "requested");
+            }
+        });
+
     }
 
     // Draw the jstree according to the parsing of the dropped files
@@ -119,7 +128,7 @@
                 json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "type":"study", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
                 for (var series in _jsonDataModel[patient].studies[study].series) {
                     num_series++;
-                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series", "icon" : "' + IMAGE_LEAF + '" }');
+                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series"}');
                     num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
                 }
             }
@@ -140,14 +149,14 @@
         str += '  "core" : {';
         str += '    "multiple" : false,';
         str += '    "data" : [ ' + output + ' ],';
-        str += '    "variant" : "large",';
+        str += '    "variant" : "large"';
         str += '  },';
         str += '  "checkbox": { "three_state": false },';
         str += '  "plugins" : [ "grid", "types", "ui" ],';
         str += '  "types" : {';
-        str += '    "patient" : {"icon" : "/static/radmove_view/images/user.png"},';
-        str += '    "study" : {"icon" : "/static/radmove_view/images/study.png"},';
-        str += '    "series" : {"icon" : "/static/radmove_view/images/series.png"},';
+        str += '    "patient" : {"icon" : "data/user.png"},';
+        str += '    "study" : {"icon" : "data/study.png"},';
+        str += '    "series" : {"icon" : "data/series.png"}';
         str += '  },';
         str += '  "search" : { "show_only_matches" : true, "show_only_matches_children" : true},';
         str += '  "grid" : {';
@@ -268,9 +277,9 @@
             "checkbox": {"three_state": false},
             "plugins": ["grid", "types", "ui"],
             "types": {
-                "patient": {"icon": "/static/radmove_view/images/user.png"},
-                "study": {"icon": "/static/radmove_view/images/study.png"},
-                "series": {"icon": "/static/radmove_view/images/series.png"},
+                "patient": {"icon": "/data/user.png"},
+                "study": {"icon": "/data/study.png"},
+                "series": {"icon": "/data/series.png"},
             },
             "search": {"show_only_matches": true, "show_only_matches_children": true},
             "grid": {
