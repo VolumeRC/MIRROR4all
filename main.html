@@ -201,24 +201,23 @@
             <div class="row">
                 <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
                 <div class="col-md-8">
-            <p class="lead">If you have loaded multiple datasets...<br/>Choose which series to visualize:</p>
+            <p class="lead">Drop your files below and pick the series you want to visualize:</p>
             <p>
-            <div id="jstree_demo_div">
-                <ul>
-                    <li data-jstree='{"opened":true,"selected":true}'>Root
+                <div id="DropArea" class="inner cover" style="text-align: left;background-color: rgba(128,128,128,0.5);">
+                    <p>
+                    <div id="jstree_div">
                         <ul>
-                            <li data-jstree='{"disabled":true}'>Child</li>
-                            <li data-jstree='{"icon":"//jstree.com/tree.png"}'>
-                                Child
-                            </li>
-                            <li data-jstree='{"icon":"glyphicon glyphicon-leaf"}'>
-                                Child
-                            </li>
+                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                            <li data-jstree='{"icon":"data/series.png","opened":true,"selected":false}'>Drop Your Files here.</li>
+                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
+                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
                         </ul>
-                    </li>
-                </ul>
-            </div>
-            <div id="jstree_div"></div>
+                    </div>
+                    </p>
+                </div>
             </p>
 
                 <div class="row">
@@ -271,7 +270,11 @@
  ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+
+<script src="scripts/jstree.min.js"></script>
+<script src="scripts/jstreegrid_3.4.2.js"></script>
+
+
 <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
@@ -314,6 +317,14 @@
 
     function fillJstree(content){
         $('#jstree_div').jstree(content);
+
+        $('#jstree_div').jstree().grid_hide_column(9);
+
+        $('#jstree_div').on("select_node.jstree", function (e, data) {
+            if (data.node.type == 'series') {
+                console.log("View series" + data.node.id + "requested");
+            }
+        });
     }
 
     // Draw the jstree according to the parsing of the dropped files
@@ -326,13 +337,13 @@
 
         for (var patient in _jsonDataModel) {
             num_patients++;
-            json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
+            json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "type":"patient", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
             for (var study in _jsonDataModel[patient].studies) {
                 num_studies++;
-                json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
+                json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "type":"study", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
                 for (var series in _jsonDataModel[patient].studies[study].series) {
                     num_series++;
-                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "icon" : "' + IMAGE_LEAF + '" }');
+                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series"}');
                     num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
                 }
             }
@@ -348,7 +359,38 @@
         destroyJstree();
 
         // Create the new tree
-        fillJstree(JSON.parse('{"core" : { "data" : [ ' + output + ' ]}, "plugins" : [ "" ]}'));
+        var str = '';
+        str += '{';
+        str += '  "core" : {';
+        str += '    "multiple" : false,';
+        str += '    "data" : [ ' + output + ' ],';
+        str += '    "variant" : "large"';
+        str += '  },';
+        str += '  "checkbox": { "three_state": false },';
+        str += '  "plugins" : [ "grid", "types", "ui" ],';
+        str += '  "types" : {';
+        str += '    "patient" : {"icon" : "data/user.png"},';
+        str += '    "study" : {"icon" : "data/study.png"},';
+        str += '    "series" : {"icon" : "data/series.png"}';
+        str += '  },';
+        str += '  "search" : { "show_only_matches" : true, "show_only_matches_children" : true},';
+        str += '  "grid" : {';
+        str += '    "columns": [';
+        str += '      {"width": 390, "header": "Cases"},';
+        str += '      {"width": 70, "header": "Sex", "value": "sex"},';
+        str += '      {"width": 70, "header": "Age", "value": "age"},';
+        str += '      {"width": 75, "header": "Studies", "value": "num_children"},';
+        str += '      {"width": 70, "header": "Series", "value": "num_series"},';
+        str += '      {"width": 180, "header": "Institution", "value": "institution"},';
+        str += '      {"width": 110, "header": "Acq. date", "value": "datetime"},';
+        str += '      {"width": 75, "header": "Images", "value": "num_images"},';
+        str += '      {"width": 75, "header": "Modality", "value": "modality"},';
+        str += '      {"width": 75, "header": "Descriptors", "value": "descriptors"}';
+        str += '    ]';
+        str += '  }';
+        str += '}';
+        //str = '{"core" : { "data" : [ ' + output + ' ]}, "plugins" : [ "" ]}'
+        fillJstree(JSON.parse(str));
     }
 
 
@@ -415,7 +457,7 @@
         // Also needed to prevent the drop target element from triggering default action on dropped files (download)
         dropEvent.stopPropagation();
         dropEvent.preventDefault();
-
+        _total_files = dropEvent.dataTransfer.files.length;
         var array_of_files = dropEvent.dataTransfer.files;
         for (var i = 0; i < array_of_files.length; i++) {
             console.log("file: " + array_of_files[i]);
@@ -424,22 +466,6 @@
 
         //Comment out to disable segmentation
         //Runner.filter.setInputFile(event.dataTransfer.files);
-
-        // Get the number of slices info, to update the ImageTextureAtlas
-        CURRENT_FILES = dropEvent.dataTransfer.files;
-        var numberOfSlices = dropEvent.dataTransfer.files.length;
-        var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
-            slicesOverY = slicesOverX;
-
-        // Reset the X3D scene declaration, and reload the scene;
-        resetScene(numberOfSlices, slicesOverX, slicesOverY);
-
-        // Resulting canvas containing atlas
-        var voxelCanvas = document.getElementById("voxelCanvas");
-        var voxelContext = voxelCanvas.getContext("2d");
-
-        //Now process the dropped files with dicomParser
-        filesToAtlas(dropEvent.dataTransfer.files, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
     }
 
     /*
@@ -474,6 +500,44 @@
         // Set handlers for required drop events
         document.getElementById("DropArea").addEventListener("drop", divondrop);
         document.getElementById("DropArea").addEventListener("dragover", divallowdrop);
+
+        $('#jstree_div').jstree({
+            "core": {
+                "multiple": false,
+                //"data" : JSON.parse('[' + json_jstree + ']'),
+                "variant": "large",
+            },
+            "checkbox": {"three_state": false},
+            "plugins": ["grid", "types", "ui"],
+            "types": {
+                "patient": {"icon": "/data/user.png"},
+                "study": {"icon": "/data/study.png"},
+                "series": {"icon": "/data/series.png"},
+            },
+            "search": {"show_only_matches": true, "show_only_matches_children": true},
+            "grid": {
+                columns: [
+                    {width: 390, header: "Cases"},
+                    {width: 70, header: "Sex", value: "sex"},
+                    {width: 70, header: "Age", value: "age"},
+                    {width: 75, header: "Studies", value: "num_children"},
+                    {width: 70, header: "Series", value: "num_series"},
+                    {width: 180, header: "Institution", value: "institution"},
+                    {width: 110, header: "Acq. date", value: "datetime"},
+                    {width: 75, header: "Images", value: "num_images"},
+                    {width: 75, header: "Modality", value: "modality"},
+                    {width: 75, header: "Descriptors", value: "descriptors"}
+                ]
+            }
+        });
+        $('#jstree_div').jstree().grid_hide_column(9);
+
+        $('#jstree_div').on("select_node.jstree", function (e, data) {
+            if (data.node.type == 'series') {
+                url = "/en/view/view_series/" + data.node.id + "/";
+                $(location).attr('href', url);
+            }
+        });
 
         var guiWL = new dat.GUI();
         var wlFolder = guiWL.addFolder('W/L');
