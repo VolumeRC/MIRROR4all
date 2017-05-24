@@ -19,106 +19,12 @@
 
     <link rel="stylesheet" href="styles/themes/default/style.min.css"/>
 
-    <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/-->
-    <!--link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css"/-->
-    <script type="text/javascript" src="scripts/x3dom-full.js"></script>
-
-    <script src="scripts/webcomponents-lite.min.js"></script>
-    <link rel="import" href="components/polymer.html">
-    <link rel="import" href="components/tf-editor.html">
-
     <style>
         html, body {
             height: 100%;
             width: 100%;
             margin: 0;
             padding: 0;
-        }
-
-        .wrap {
-            height: 100%;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            background: #111111;
-            color: #fff;
-            text-align: center;
-        }
-
-        header {
-            background: #333333;
-            box-shadow: 0 .5em 1em #222222;
-            position: absolute;
-            top: 0;
-            left: -8%;
-            z-index: 900;
-            height: 100%;
-            width: 10%;
-        }
-
-        header:hover {
-            left: 0;
-        }
-
-        header label {
-            color: #ffffff;
-            cursor: pointer;
-            display: inline-block;
-            line-height: 4.25em;
-            font-size: larger;
-            font-weight: bold;
-            padding: 0 1em;
-            width: 100%;
-            height: 8%;
-        }
-
-        header label:hover {
-            background: #444444;
-        }
-
-        .slide {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 100%;
-            left: 0%;
-            z-index: 10;
-            /*padding: 8em 1em 0;*/
-            background-color: #323232;
-            background-position: 50% 50%;
-            background-size: cover;
-            transition: left 0s .75s;
-        }
-
-        .slide-one {
-            background-color: #555555;
-            padding: 8em 1em 0;
-        }
-
-        .slide-two {
-            background-color: #444444;
-        }
-
-        [id$="trigger"] {
-            visibility: hidden;
-        }
-
-        [id^="slide"]:checked + .slide {
-            top: 0;
-            z-index: 100;
-            transition: top .65s ease-out;
-        }
-
-        .slide div.content {
-            opacity: 0;
-            transform: translateX(100%);
-            transition: transform .5s .5s, opacity .5s;
-        }
-
-        [id^="slide"]:checked + .slide div.content {
-            opacity: 1;
-            transform: translateX(0);
-            transition: all .5s .5s;
         }
 
         X3D {
@@ -135,389 +41,399 @@
             width: 500px;
         }
     </style>
+
+    <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/-->
+    <!--link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css"/-->
+    <script type="text/javascript" src="scripts/x3dom-full.js"></script>
+
+    <script src="scripts/webcomponents-lite.min.js"></script>
+    <link rel="import" href="components/polymer.html">
+    <link rel="import" href="components/tf-editor.html">
+
+    <!-- Bootstrap core JavaScript ================================================== -->
+    <script src="scripts/jquery.1.12.4.min.js"></script>
+    <script>window.jQuery || document.write('<script src="scripts/jquery.1.12.4.min.js"><\/script>')</script>
+    <script src="scripts/jstree.min.js"></script>
+    <script src="scripts/jstreegrid_3.4.2.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script type="text/javascript" src="scripts/bootstrap.3.3.7.min.js"></script>
+    <script type="text/javascript" src="scripts/dicomParser.js"></script>
+    <script type="text/javascript" src="scripts/dicomDictionary.js"></script>
+    <script type="text/javascript" src="scripts/dicomParserUtils.js"></script>
+    <script type="text/javascript" src="scripts/cornerstone.js"></script>
+    <script type="text/javascript" src="scripts/cornerstoneWADOImageLoader.js"></script>
+    <script type="text/javascript" src="scripts/dicom2atlas.js"></script>
+    <script type="text/javascript" src="scripts/dat.gui.min.js"></script>
+
+    <script type="text/javascript">
+        var CURRENT_FILES;
+
+        // Prevents the drop target element from triggering default action on dropped files (download)
+        function divallowdrop(event) {
+            event.preventDefault();
+        }
+
+        var _jsonDataModel = {};
+        var _total_files = 0;
+        var _files_added = 0;
+        var _all_files = {};
+
+        function destroyJstree() {
+            $('#jstree_div').empty();
+            $('#jstree_div').jstree("destroy");
+        }
+
+        function fillJstree(content) {
+            $('#jstree_div').jstree(content);
+
+            $('#jstree_div').jstree().grid_hide_column(9);
+
+            $('#jstree_div').on("select_node.jstree", function (e, data) {
+                if (data.node.type == 'series') {
+                    //console.log("View series" + data.node.id + "requested");
+                    CURRENT_FILES = [];
+                    for (var patient_id in _all_files) {
+                        for (var study_id in _all_files[patient_id]) {
+                            for (var series_id in _all_files[patient_id][study_id]) {
+                                if (series_id == data.node.id)
+                                    CURRENT_FILES = _all_files[patient_id][study_id][series_id];
+                            }
+                        }
+                    }
+                    var numberOfSlices = CURRENT_FILES.length;
+                    var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
+                        slicesOverY = slicesOverX;
+
+                    // Reset the X3D scene declaration, and reload the scene;
+                    resetScene(numberOfSlices, slicesOverX, slicesOverY);
+
+                    // Resulting canvas containing atlas
+                    var voxelCanvas = document.getElementById("voxelCanvas");
+                    var voxelContext = voxelCanvas.getContext("2d");
+
+                    //Now process the dropped files with dicomParser
+                    filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
+                }
+            });
+        }
+
+        // Draw the jstree according to the parsing of the dropped files
+        function drawTree() {
+            var json_jstree = [];
+            var num_patients = 0;
+            var num_studies = 0;
+            var num_series = 0;
+            var num_slices = 0;
+
+            for (var patient in _jsonDataModel) {
+                num_patients++;
+                json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "type":"patient", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
+                for (var study in _jsonDataModel[patient].studies) {
+                    num_studies++;
+                    json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "type":"study", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
+                    for (var series in _jsonDataModel[patient].studies[study].series) {
+                        num_series++;
+                        json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series"}');
+                        num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
+                    }
+                }
+            }
+
+            var output = "";
+            for (var element in json_jstree) {
+                output += json_jstree[element] + ",";
+            }
+            output = output.substring(0, output.length - 1);
+
+            // Delete the old tree if it exists
+            destroyJstree();
+
+            // Create the new tree
+            var str = '';
+            str += '{';
+            str += '  "core" : {';
+            str += '    "multiple" : false,';
+            str += '    "data" : [ ' + output + ' ],';
+            str += '    "variant" : "large"';
+            str += '  },';
+            str += '  "checkbox": { "three_state": false },';
+            str += '  "plugins" : [ "grid", "types", "ui" ],';
+            str += '  "types" : {';
+            str += '    "patient" : {"icon" : "data/user.png"},';
+            str += '    "study" : {"icon" : "data/study.png"},';
+            str += '    "series" : {"icon" : "data/series.png"}';
+            str += '  },';
+            str += '  "search" : { "show_only_matches" : true, "show_only_matches_children" : true},';
+            str += '  "grid" : {';
+            str += '    "columns": [';
+            str += '      {"width": 390, "header": "Cases"},';
+            str += '      {"width": 70, "header": "Sex", "value": "sex"},';
+            str += '      {"width": 70, "header": "Age", "value": "age"},';
+            str += '      {"width": 75, "header": "Studies", "value": "num_children"},';
+            str += '      {"width": 70, "header": "Series", "value": "num_series"},';
+            str += '      {"width": 180, "header": "Institution", "value": "institution"},';
+            str += '      {"width": 110, "header": "Acq. date", "value": "datetime"},';
+            str += '      {"width": 75, "header": "Images", "value": "num_images"},';
+            str += '      {"width": 75, "header": "Modality", "value": "modality"},';
+            str += '      {"width": 75, "header": "Descriptors", "value": "descriptors"}';
+            str += '    ]';
+            str += '  }';
+            str += '}';
+            //str = '{"core" : { "data" : [ ' + output + ' ]}, "plugins" : [ "" ]}'
+            fillJstree(JSON.parse(str));
+        }
+
+
+        // Update the progress bar and the jstree (if applies) according to the parsing of the dropped files
+        function updateTree() {
+            _files_added++;
+
+            // Is this the last file?
+            if (_files_added == _total_files) {
+                _files_added = 0;
+                drawTree();
+            }
+
+        }
+
+        // Anonymize and parse a file
+        function parse_file(file) {
+
+            var reader = new FileReader();
+            reader.onload = function () {
+
+                var arrayBuffer = reader.result;
+                var byteArray = new Uint8Array(arrayBuffer);
+
+                try {
+                    var dataSet = dicomParser.parseDicom(byteArray);
+                    var dump_result = dumpToJson(_jsonDataModel, dataSet);
+
+                    if (dump_result == false) {
+                        // incomplete file
+                    }
+                    else { // valid file
+                        (_all_files[dump_result[0]] === undefined) ? _all_files[dump_result[0]] = {} : {};
+                        (_all_files[dump_result[0]][dump_result[1]] === undefined) ? _all_files[dump_result[0]][dump_result[1]] = {} : {};
+                        (_all_files[dump_result[0]][dump_result[1]][dump_result[2]] === undefined) ? _all_files[dump_result[0]][dump_result[1]][dump_result[2]] = [] : [];
+                        _all_files[dump_result[0]][dump_result[1]][dump_result[2]].push(file);
+                    }
+                }
+                catch (err) {
+                    //invalid file
+                }
+
+                finally {
+                    updateTree();
+                }
+
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Handles multiple DICOM files drop on element and converts them into an atlas
+        function divondrop(dropEvent) {
+            // Also needed to prevent the drop target element from triggering default action on dropped files (download)
+            dropEvent.stopPropagation();
+            dropEvent.preventDefault();
+            _total_files = dropEvent.dataTransfer.files.length;
+            var array_of_files = dropEvent.dataTransfer.files;
+            for (var i = 0; i < array_of_files.length; i++) {
+                //console.log("file: " + array_of_files[i]);
+                parse_file(array_of_files[i]);
+            }
+
+            //Comment out to disable segmentation
+            //Runner.filter.setInputFile(event.dataTransfer.files);
+        }
+
+        /*
+         * Reset all the scene declaration and reload
+         */
+        function resetScene(numberOfSlices, slicesOverX, slicesOverY) {
+            var myX3D = document.getElementById("MyX3D");
+            var myX3DPlaceHolder = document.getElementById("MyX3DPlaceHolder");
+            //var ORIGINAL_X3DNODE_HTML = myX3DPlaceHolder.innerHTML;// NOTE: If we get it here everything goes black!
+            myX3D.parentNode.removeChild(myX3D);
+            // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
+            myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
+                .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
+                .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
+                .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");
+            // Force reload of scene
+            x3dom.reload();
+        }
+
+        function updateWL(value) {
+            if (CURRENT_FILES !== undefined) {
+                var voxelCanvas = document.getElementById("voxelCanvas");
+                var voxelContext = voxelCanvas.getContext("2d");
+                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
+            }
+        }
+
+        function bodyonload() {
+            // Set handlers for required drop events
+            document.getElementById("DropArea").addEventListener("drop", divondrop);
+            document.getElementById("DropArea").addEventListener("dragover", divallowdrop);
+
+            $('#jstree_div').jstree({
+                "core": {
+                    "multiple": false,
+                    //"data" : JSON.parse('[' + json_jstree + ']'),
+                    "variant": "large",
+                },
+                "checkbox": {"three_state": false},
+                "plugins": ["grid", "types", "ui"],
+                "types": {
+                    "patient": {"icon": "/data/user.png"},
+                    "study": {"icon": "/data/study.png"},
+                    "series": {"icon": "/data/series.png"},
+                },
+                "search": {"show_only_matches": true, "show_only_matches_children": true},
+                "grid": {
+                    columns: [
+                        {width: 390, header: "Cases"},
+                        {width: 70, header: "Sex", value: "sex"},
+                        {width: 70, header: "Age", value: "age"},
+                        {width: 75, header: "Studies", value: "num_children"},
+                        {width: 70, header: "Series", value: "num_series"},
+                        {width: 180, header: "Institution", value: "institution"},
+                        {width: 110, header: "Acq. date", value: "datetime"},
+                        {width: 75, header: "Images", value: "num_images"},
+                        {width: 75, header: "Modality", value: "modality"},
+                        {width: 75, header: "Descriptors", value: "descriptors"}
+                    ]
+                }
+            });
+            $('#jstree_div').jstree().grid_hide_column(9);
+
+            $('#jstree_div').on("select_node.jstree", function (e, data) {
+                if (data.node.type == 'series') {
+                    url = "/en/view/view_series/" + data.node.id + "/";
+                    $(location).attr('href', url);
+                }
+            });
+
+            var guiWL = new dat.GUI({autoPlace: false});
+            var customContainer = document.getElementById('MyX3DComponents');
+            customContainer.appendChild(guiWL.domElement);
+            guiWL.domElement.setAttribute("style", guiWL.domElement.getAttribute("style") + "position: absolute;right: 0;");
+            console.log(guiWL.domElement);
+            var wlFolder = guiWL.addFolder('W/L');
+            var windowCenter = wlFolder.add(x3domcontrols, 'windowCenter', -2500, 5000, 1).listen();
+            var windowWidth = wlFolder.add(x3domcontrols, 'windowWidth', 0, 7500, 1).listen();
+            windowCenter.onFinishChange(updateWL);
+            windowWidth.onFinishChange(updateWL);
+            //wlFolder.open();
+            $('#myModal').modal();
+            $('#jstree_demo_div').jstree();
+        }
+        window.addEventListener("load", bodyonload, false);
+    </script>
 </head>
 <body>
-
-<div class="wrap">
-
-    <input id="slide-1-trigger" type="radio" name="slides" checked>
-    <section class="slide slide-one">
-        <div class="content">
-            <div class="row">
-                <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
-                <div class="col-md-8">
-                    <p class="lead">Drop your files below and pick the series you want to visualize:</p>
-                    <p>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"
+        style="position: absolute;top: 0;left: 0;z-index: 10;">
+    Drag,Drop,Pick
+</button>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #323232;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Drag,Drop,Pick</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
+                    <div class="col-md-8">
+                        <p class="lead">Drop your files below and pick the series you want to visualize:</p>
                         <div id="DropArea" class="inner cover"
                              style="text-align: left;background-color: rgba(128,128,128,0.5);">
-                    <p>
-                    <div id="jstree_div">
-                        <ul>
-                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                            <li data-jstree='{"icon":"data/series.png","opened":true,"selected":false}'>Drop Your Files
-                                here.
-                            </li>
-                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                            <li data-jstree='{"icon":"data/series.png"}'>.</li>
-                        </ul>
+                            <div id="jstree_div">
+                                <ul>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>Drop Your Files here.</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    </p>
                 </div>
-                </p>
-
                 <div class="row">
-                    <div class="col-md-8" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
+                    <div class="col-md-12" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
                         consectetur adipiscing elit. Donec gravida nulla turpis, eget aliquet nibh finibus vitae. In
-                        convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero quis
+                        convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero
+                        quis
                         facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et commodo odio.
                         Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
-                        lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus
-                        porta, ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus
+                        lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac
+                        tellus
+                        porta, ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi
+                        faucibus
                         purus commodo, pellentesque ipsum eget, placerat turpis.
                     </div>
                 </div>
             </div>
-    </section>
-    <input id="slide-2-trigger" type="radio" name="slides">
-    <section class="slide slide-two">
-        <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
-                                           aria-hidden="true" style="position: absolute;"></span></label>
-        <div class="content">
-            <div id="MyX3DComponents" class="col-md-12" style="height: 1000px;">
-                <div id="MyX3DPlaceHolder">
-                    <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
-                         width="100vw" height="100vh" altImg="helloX3D-alt.png" style="width: 100%; height: 100%;">
-                        <Scene id="X3DScene">
-                            <Background skyColor='0.0 0.0 0.0'></Background>
-                            <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
-                            <shape>
-                                <appearance>
-                                    <material diffuseColor='0.603 0.894 0.909'></material>
-                                </appearance>
-                                <box></box>
-                            </shape>
-                            <Transform id="volumeTransform">
-                                <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
-                                    <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
-                                                       slicesOverY='10' id="voxelAtlas" hideChildren="true">
-                                        <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
-                                    </ImageTextureAtlas>
-                                    <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
-                                        <ImageTexture containerField='transferFunction'>
-                                        </ImageTexture>
-                                    </OpacityMapVolumeStyle>
-                                </VolumeData>
-                            </Transform>
-                        </Scene>
-                    </X3D>
-                </div>
-                <div style="margin-left: 10px;top: 0;position: absolute;">
-                    <tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor>
-                </div>
-                <script>
-                    x3dom.reload();
-                </script>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
-    </section>
+    </div>
+</div>
+<div class="fullscreen-bg">
+
+    <div class="content">
+        <div id="MyX3DComponents" class="col-md-12" style="height: 1000px;">
+            <div id="MyX3DPlaceHolder">
+                <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
+                     width="100%" height="100%" altImg="helloX3D-alt.png"
+                     style="width: 100%; height: 100%;overflow: hidden">
+                    <Scene id="X3DScene">
+                        <Background skyColor='0.5 0.4 0.5'></Background>
+                        <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
+                        <shape>
+                            <appearance>
+                                <material diffuseColor='0.8 0.9 0.8'></material>
+                            </appearance>
+                            <box></box>
+                        </shape>
+                        <Transform id="volumeTransform">
+                            <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
+                                <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
+                                                   slicesOverY='10' id="voxelAtlas" hideChildren="true">
+                                    <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
+                                </ImageTextureAtlas>
+                                <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                                    <ImageTexture containerField='transferFunction'>
+                                    </ImageTexture>
+                                </OpacityMapVolumeStyle>
+                            </VolumeData>
+                        </Transform>
+                    </Scene>
+                </X3D>
+            </div>
+            <div style="margin-left: 10px;top: 0;position: absolute;">
+                <!--tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor-->
+            </div>
+            <script>
+                x3dom.reload();
+            </script>
+        </div>
+    </div>
 </div>
 
-<!-- Bootstrap core JavaScript
- ================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="scripts/jquery.1.12.4.min.js"></script>
-<script src="scripts/jstree.min.js"></script>
-<script src="scripts/jstreegrid_3.4.2.js"></script>
-<script>window.jQuery || document.write('<script src="scripts/jquery.1.12.4.min.js"><\/script>')</script>
-<!-- Latest compiled and minified JavaScript -->
-<script type="text/javascript" src="scripts/bootstrap.3.3.7.min.js"></script>
-<script type="text/javascript" src="scripts/dicomParser.js"></script>
-<script type="text/javascript" src="scripts/dicomDictionary.js"></script>
-<script type="text/javascript" src="scripts/dicomParserUtils.js"></script>
-<script type="text/javascript" src="scripts/cornerstone.js"></script>
-<script type="text/javascript" src="scripts/cornerstoneWADOImageLoader.js"></script>
-<script type="text/javascript" src="scripts/dicom2atlas.js"></script>
-<script type="text/javascript" src="scripts/dat.gui.min.js"></script>
-
-<!-- For segmentation -->
-<!--script type="text/javascript" src="scripts/EmscriptenDebug.js"></script-->
-<!--script type="text/javascript" src="scripts/CTThresholdSegmentationAll.js"></script-->
-<!--script type="text/javascript" src="scripts/FileSaver.min.js"></script-->
-<!--script type="text/javascript" src="scripts/Runner.js"></script-->
-
-<script type="text/javascript">
-    var CURRENT_FILES;
-
-    // Prevents the drop target element from triggering default action on dropped files (download)
-    function divallowdrop(event) {
-        event.preventDefault();
-    }
-
-    var _jsonDataModel = {};
-    var _total_files = 0;
-    var _files_added = 0;
-    var _all_files = {};
-
-    function destroyJstree() {
-        $('#jstree_div').empty();
-        $('#jstree_div').jstree("destroy");
-    }
-
-    function fillJstree(content) {
-        $('#jstree_div').jstree(content);
-
-        $('#jstree_div').jstree().grid_hide_column(9);
-
-        $('#jstree_div').on("select_node.jstree", function (e, data) {
-            if (data.node.type == 'series') {
-                //console.log("View series" + data.node.id + "requested");
-                $('#slide-2-trigger').click();
-
-                CURRENT_FILES = [];
-                for (var patient_id in _all_files) {
-                    for (var study_id in _all_files[patient_id]) {
-                        for (var series_id in _all_files[patient_id][study_id]) {
-                            if (series_id == data.node.id)
-                                CURRENT_FILES = _all_files[patient_id][study_id][series_id];
-                        }
-                    }
-                }
-                var numberOfSlices = CURRENT_FILES.length;
-                var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
-                    slicesOverY = slicesOverX;
-
-                // Reset the X3D scene declaration, and reload the scene;
-                resetScene(numberOfSlices, slicesOverX, slicesOverY);
-
-                // Resulting canvas containing atlas
-                var voxelCanvas = document.getElementById("voxelCanvas");
-                var voxelContext = voxelCanvas.getContext("2d");
-
-                //Now process the dropped files with dicomParser
-                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
-
-            }
-        });
-    }
-
-    // Draw the jstree according to the parsing of the dropped files
-    function drawTree() {
-        var json_jstree = [];
-        var num_patients = 0;
-        var num_studies = 0;
-        var num_series = 0;
-        var num_slices = 0;
-
-        for (var patient in _jsonDataModel) {
-            num_patients++;
-            json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "type":"patient", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
-            for (var study in _jsonDataModel[patient].studies) {
-                num_studies++;
-                json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "type":"study", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
-                for (var series in _jsonDataModel[patient].studies[study].series) {
-                    num_series++;
-                    json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series"}');
-                    num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
-                }
-            }
-        }
-
-        var output = "";
-        for (var element in json_jstree) {
-            output += json_jstree[element] + ",";
-        }
-        output = output.substring(0, output.length - 1);
-
-        // Delete the old tree if it exists
-        destroyJstree();
-
-        // Create the new tree
-        var str = '';
-        str += '{';
-        str += '  "core" : {';
-        str += '    "multiple" : false,';
-        str += '    "data" : [ ' + output + ' ],';
-        str += '    "variant" : "large"';
-        str += '  },';
-        str += '  "checkbox": { "three_state": false },';
-        str += '  "plugins" : [ "grid", "types", "ui" ],';
-        str += '  "types" : {';
-        str += '    "patient" : {"icon" : "data/user.png"},';
-        str += '    "study" : {"icon" : "data/study.png"},';
-        str += '    "series" : {"icon" : "data/series.png"}';
-        str += '  },';
-        str += '  "search" : { "show_only_matches" : true, "show_only_matches_children" : true},';
-        str += '  "grid" : {';
-        str += '    "columns": [';
-        str += '      {"width": 390, "header": "Cases"},';
-        str += '      {"width": 70, "header": "Sex", "value": "sex"},';
-        str += '      {"width": 70, "header": "Age", "value": "age"},';
-        str += '      {"width": 75, "header": "Studies", "value": "num_children"},';
-        str += '      {"width": 70, "header": "Series", "value": "num_series"},';
-        str += '      {"width": 180, "header": "Institution", "value": "institution"},';
-        str += '      {"width": 110, "header": "Acq. date", "value": "datetime"},';
-        str += '      {"width": 75, "header": "Images", "value": "num_images"},';
-        str += '      {"width": 75, "header": "Modality", "value": "modality"},';
-        str += '      {"width": 75, "header": "Descriptors", "value": "descriptors"}';
-        str += '    ]';
-        str += '  }';
-        str += '}';
-        //str = '{"core" : { "data" : [ ' + output + ' ]}, "plugins" : [ "" ]}'
-        fillJstree(JSON.parse(str));
-    }
-
-
-    // Update the progress bar and the jstree (if applies) according to the parsing of the dropped files
-    function updateTree() {
-        _files_added++;
-
-        // Is this the last file?
-        if (_files_added == _total_files) {
-            _files_added = 0;
-            drawTree();
-        }
-
-    }
-
-    // Anonymize and parse a file
-    function parse_file(file) {
-
-        var reader = new FileReader();
-        reader.onload = function () {
-
-            var arrayBuffer = reader.result;
-            var byteArray = new Uint8Array(arrayBuffer);
-
-            try {
-                var dataSet = dicomParser.parseDicom(byteArray);
-                var dump_result = dumpToJson(_jsonDataModel, dataSet);
-
-                if (dump_result == false) {
-                    // incomplete file
-                }
-                else { // valid file
-                    (_all_files[dump_result[0]] === undefined) ? _all_files[dump_result[0]] = {} : {};
-                    (_all_files[dump_result[0]][dump_result[1]] === undefined) ? _all_files[dump_result[0]][dump_result[1]] = {} : {};
-                    (_all_files[dump_result[0]][dump_result[1]][dump_result[2]] === undefined) ? _all_files[dump_result[0]][dump_result[1]][dump_result[2]] = [] : [];
-                    _all_files[dump_result[0]][dump_result[1]][dump_result[2]].push(file);
-                }
-            }
-            catch (err) {
-                //invalid file
-            }
-
-            finally {
-                updateTree();
-            }
-
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    // Handles multiple DICOM files drop on element and converts them into an atlas
-    function divondrop(dropEvent) {
-        // Also needed to prevent the drop target element from triggering default action on dropped files (download)
-        dropEvent.stopPropagation();
-        dropEvent.preventDefault();
-        _total_files = dropEvent.dataTransfer.files.length;
-        var array_of_files = dropEvent.dataTransfer.files;
-        for (var i = 0; i < array_of_files.length; i++) {
-            console.log("file: " + array_of_files[i]);
-            parse_file(array_of_files[i]);
-        }
-
-        //Comment out to disable segmentation
-        //Runner.filter.setInputFile(event.dataTransfer.files);
-    }
-
-    /*
-     * Reset all the scene declaration and reload
-     */
-    function resetScene(numberOfSlices, slicesOverX, slicesOverY) {
-        var myX3D = document.getElementById("MyX3D");
-        var myX3DPlaceHolder = document.getElementById("MyX3DPlaceHolder");
-        //var ORIGINAL_X3DNODE_HTML = myX3DPlaceHolder.innerHTML;// NOTE: If we get it here everything goes black!
-        myX3D.parentNode.removeChild(myX3D);
-        // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
-        myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
-            .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
-            .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
-            .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");
-        // Force reload of scene
-        x3dom.reload();
-    }
-
-    function updateWL(value) {
-        if (CURRENT_FILES !== undefined) {
-            var voxelCanvas = document.getElementById("voxelCanvas");
-            var voxelContext = voxelCanvas.getContext("2d");
-            filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
-        }
-    }
-
-    // Here we pick up the original HTML Code of our X3D Node
-    var ORIGINAL_X3DNODE_HTML = document.getElementById("MyX3DPlaceHolder").innerHTML;
-
-    function bodyonload() {
-        // Set handlers for required drop events
-        document.getElementById("DropArea").addEventListener("drop", divondrop);
-        document.getElementById("DropArea").addEventListener("dragover", divallowdrop);
-
-        $('#jstree_div').jstree({
-            "core": {
-                "multiple": false,
-                //"data" : JSON.parse('[' + json_jstree + ']'),
-                "variant": "large",
-            },
-            "checkbox": {"three_state": false},
-            "plugins": ["grid", "types", "ui"],
-            "types": {
-                "patient": {"icon": "/data/user.png"},
-                "study": {"icon": "/data/study.png"},
-                "series": {"icon": "/data/series.png"},
-            },
-            "search": {"show_only_matches": true, "show_only_matches_children": true},
-            "grid": {
-                columns: [
-                    {width: 390, header: "Cases"},
-                    {width: 70, header: "Sex", value: "sex"},
-                    {width: 70, header: "Age", value: "age"},
-                    {width: 75, header: "Studies", value: "num_children"},
-                    {width: 70, header: "Series", value: "num_series"},
-                    {width: 180, header: "Institution", value: "institution"},
-                    {width: 110, header: "Acq. date", value: "datetime"},
-                    {width: 75, header: "Images", value: "num_images"},
-                    {width: 75, header: "Modality", value: "modality"},
-                    {width: 75, header: "Descriptors", value: "descriptors"}
-                ]
-            }
-        });
-        $('#jstree_div').jstree().grid_hide_column(9);
-
-        $('#jstree_div').on("select_node.jstree", function (e, data) {
-            if (data.node.type == 'series') {
-                url = "/en/view/view_series/" + data.node.id + "/";
-                $(location).attr('href', url);
-            }
-        });
-
-        var guiWL = new dat.GUI({autoPlace: false});
-        var customContainer = document.getElementById('MyX3DComponents');
-        customContainer.appendChild(guiWL.domElement);
-        guiWL.domElement.setAttribute("style", guiWL.domElement.getAttribute("style") + "position: absolute;right: 0;");
-        console.log(guiWL.domElement);
-        var wlFolder = guiWL.addFolder('W/L');
-        var windowCenter = wlFolder.add(x3domcontrols, 'windowCenter', -2500, 5000, 1).listen();
-        var windowWidth = wlFolder.add(x3domcontrols, 'windowWidth', 0, 7500, 1).listen();
-        windowCenter.onFinishChange(updateWL);
-        windowWidth.onFinishChange(updateWL);
-        wlFolder.open();
-    }
-    window.addEventListener("load", bodyonload, false);
-</script>
 <!-- The following div is made invisible in order to hide temporary images needed for atlas and TF computation -->
 <div id="InvisibleDiv" style="display:none;background:#888888;width:50%;height:50%">
     <canvas width='256' height='10' id='tfCanvas'></canvas>
@@ -528,11 +444,15 @@
     </div>
 </div>
 
-<script>
-    $(function () {
-        $('#jstree_demo_div').jstree();
-    });
-</script>
 
+<!-- For segmentation -->
+<!--script type="text/javascript" src="scripts/EmscriptenDebug.js"></script-->
+<!--script type="text/javascript" src="scripts/CTThresholdSegmentationAll.js"></script-->
+<!--script type="text/javascript" src="scripts/FileSaver.min.js"></script-->
+<!--script type="text/javascript" src="scripts/Runner.js"></script-->
+<script type="text/javascript">
+    // Here we pick up the original HTML Code of our X3D Node
+    var ORIGINAL_X3DNODE_HTML = document.getElementById("MyX3DPlaceHolder").innerHTML;
+</script>
 </body>
 </html>
