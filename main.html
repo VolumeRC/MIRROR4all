@@ -264,16 +264,17 @@
          */
         function resetScene(numberOfSlices, slicesOverX, slicesOverY) {
             var myX3D = document.getElementById("MyX3D");
+            //var ORIGINAL_X3DNODE_HTML = myX3D.parentNode.innerHTML;// NOTE: If we get it here everything goes black!
+            myX3D.parentNode.removeChild(myX3D);
             var myX3DPlaceHolder = document.getElementById("MyX3DPlaceHolder");
-            //var ORIGINAL_X3DNODE_HTML = myX3DPlaceHolder.innerHTML;// NOTE: If we get it here everything goes black!
-            /*myX3D.parentNode.removeChild(myX3D);
-             // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
-             myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
-             .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
-             .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
-             .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");*/
-            document.getElementById("voxelAtlas").setAttribute("sliceoverx", slicesOverX);
-            document.getElementById("voxelAtlas").setAttribute("sliceovery", slicesOverY);
+            // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
+            myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
+                .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
+                .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
+                .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'")
+                .replace(/<\/scene>[.\s\S]*<\/x3d>/, "</scene></x3d>");
+            //document.getElementById("voxelAtlas").setAttribute("sliceoverx", slicesOverX);
+            //document.getElementById("voxelAtlas").setAttribute("sliceovery", slicesOverY);
 
             // Force reload of scene
             x3dom.reload();
