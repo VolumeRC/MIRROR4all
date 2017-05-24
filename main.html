@@ -9,25 +9,23 @@
     <link rel="icon" href="data/favicon.ico">
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/bootstrap.min.css">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/bootstrap-theme.min.css">
 
     <!-- Custom styles for this template -->
     <link href="styles/cover.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css"/>
+    <link rel="stylesheet" href="styles/themes/default/style.min.css"/>
 
     <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/-->
     <!--link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css"/-->
     <script type="text/javascript" src="scripts/x3dom-full.js"></script>
 
-    <script src="https://cdn.rawgit.com/Download/polymer-cdn/1.7.0.2/lib/webcomponentsjs/webcomponents-lite.min.js"></script>
-    <link rel="import" href="https://cdn.rawgit.com/Download/polymer-cdn/1.7.0.2/lib/polymer/polymer.html">
-    <link rel="import" href="https://cdn.rawgit.com/VolumeRC/tf-editor/v0.1.0/dist/tf-editor.html">
+    <script src="scripts/webcomponents-lite.min.js"></script>
+    <link rel="import" href="components/polymer.html">
+    <link rel="import" href="components/tf-editor.html">
 
     <style>
         html, body {
@@ -85,7 +83,7 @@
             top: 100%;
             left: 0%;
             z-index: 10;
-            padding: 8em 1em 0;
+            /*padding: 8em 1em 0;*/
             background-color: #323232;
             background-position: 50% 50%;
             background-size: cover;
@@ -94,6 +92,7 @@
 
         .slide-one {
             background-color: #555555;
+            padding: 8em 1em 0;
         }
 
         .slide-two {
@@ -140,6 +139,7 @@
 <body>
 
 <div class="wrap">
+
     <input id="slide-1-trigger" type="radio" name="slides" checked>
     <section class="slide slide-one">
         <div class="content">
@@ -170,19 +170,13 @@
 
                 <div class="row">
                     <div class="col-md-8" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
-                        consectetur adipiscing elit.
-                        Donec gravida nulla turpis, eget
-                        aliquet nibh finibus vitae. In convallis diam a sem luctus fermentum. Vivamus sed lectus nunc.
-                        Nullam
-                        tristique, libero quis facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna.
-                        Etiam et
-                        commodo odio. Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam
-                        eros nisl,
+                        consectetur adipiscing elit. Donec gravida nulla turpis, eget aliquet nibh finibus vitae. In
+                        convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero quis
+                        facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et commodo odio.
+                        Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
                         lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus
-                        porta,
-                        ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus purus
-                        commodo,
-                        pellentesque ipsum eget, placerat turpis.
+                        porta, ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus
+                        purus commodo, pellentesque ipsum eget, placerat turpis.
                     </div>
                 </div>
             </div>
@@ -190,30 +184,38 @@
     <input id="slide-2-trigger" type="radio" name="slides">
     <section class="slide slide-two">
         <label for="slide-1-trigger"><span class="glyphicon glyphicon-chevron-up previous-arrow"
-                                           aria-hidden="true"></span></label>
+                                           aria-hidden="true" style="position: absolute;"></span></label>
         <div class="content">
-            <div id="MyX3DPlaceHolder">
-                <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
-                     width="100vw" height="100vh" altImg="helloX3D-alt.png">
-                    <Scene id="X3DScene">
-                        <Background skyColor='0.0 0.0 0.0'></Background>
-                        <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
-                        <Transform id="volumeTransform">
-                            <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
-                                <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
-                                                   slicesOverY='10' id="voxelAtlas" hideChildren="true">
-                                    <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
-                                </ImageTextureAtlas>
-                                <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
-                                    <ImageTexture containerField='transferFunction'>
-                                    </ImageTexture>
-                                </OpacityMapVolumeStyle>
-                            </VolumeData>
-                        </Transform>
-                    </Scene>
-                </X3D>
+            <div id="MyX3DComponents" class="col-md-12" style="height: 1000px;">
+                <div id="MyX3DPlaceHolder">
+                    <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
+                         width="100vw" height="100vh" altImg="helloX3D-alt.png" style="width: 100%; height: 100%;">
+                        <Scene id="X3DScene">
+                            <Background skyColor='0.0 0.0 0.0'></Background>
+                            <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
+                            <shape>
+                                <appearance>
+                                    <material diffuseColor='0.603 0.894 0.909'></material>
+                                </appearance>
+                                <box></box>
+                            </shape>
+                            <Transform id="volumeTransform">
+                                <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
+                                    <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
+                                                       slicesOverY='10' id="voxelAtlas" hideChildren="true">
+                                        <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
+                                    </ImageTextureAtlas>
+                                    <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                                        <ImageTexture containerField='transferFunction'>
+                                        </ImageTexture>
+                                    </OpacityMapVolumeStyle>
+                                </VolumeData>
+                            </Transform>
+                        </Scene>
+                    </X3D>
+                </div>
                 <div style="margin-left: 10px;top: 0;position: absolute;">
-                    <tf-editor id="tf" width="400" x3dom-selector="#volume3"></tf-editor>
+                    <tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor>
                 </div>
                 <script>
                     x3dom.reload();
@@ -226,18 +228,12 @@
 <!-- Bootstrap core JavaScript
  ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
+<script src="scripts/jquery.1.12.4.min.js"></script>
 <script src="scripts/jstree.min.js"></script>
 <script src="scripts/jstreegrid_3.4.2.js"></script>
-
-
-<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script>window.jQuery || document.write('<script src="scripts/jquery.1.12.4.min.js"><\/script>')</script>
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
-
+<script type="text/javascript" src="scripts/bootstrap.3.3.7.min.js"></script>
 <script type="text/javascript" src="scripts/dicomParser.js"></script>
 <script type="text/javascript" src="scripts/dicomDictionary.js"></script>
 <script type="text/javascript" src="scripts/dicomParserUtils.js"></script>
@@ -281,10 +277,10 @@
                 $('#slide-2-trigger').click();
 
                 CURRENT_FILES = [];
-                for(var patient_id in _all_files){
-                    for(var study_id in _all_files[patient_id]){
-                        for(var series_id in _all_files[patient_id][study_id]){
-                            if(series_id == data.node.id)
+                for (var patient_id in _all_files) {
+                    for (var study_id in _all_files[patient_id]) {
+                        for (var series_id in _all_files[patient_id][study_id]) {
+                            if (series_id == data.node.id)
                                 CURRENT_FILES = _all_files[patient_id][study_id][series_id];
                         }
                     }
@@ -508,7 +504,11 @@
             }
         });
 
-        var guiWL = new dat.GUI();
+        var guiWL = new dat.GUI({autoPlace: false});
+        var customContainer = document.getElementById('MyX3DComponents');
+        customContainer.appendChild(guiWL.domElement);
+        guiWL.domElement.setAttribute("style", guiWL.domElement.getAttribute("style") + "position: absolute;right: 0;");
+        console.log(guiWL.domElement);
         var wlFolder = guiWL.addFolder('W/L');
         var windowCenter = wlFolder.add(x3domcontrols, 'windowCenter', -2500, 5000, 1).listen();
         var windowWidth = wlFolder.add(x3domcontrols, 'windowWidth', 0, 7500, 1).listen();
