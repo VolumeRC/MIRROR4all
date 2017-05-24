@@ -15,9 +15,12 @@
     <link rel="stylesheet" href="styles/bootstrap-theme.min.css">
 
     <!-- Custom styles for this template -->
-    <link href="styles/cover.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/cover.css">
 
-    <link rel="stylesheet" href="styles/themes/default/style.min.css"/>
+    <!-- styles needed by jScrollPane -->
+    <!--link rel="stylesheet" href="styles/jquery.jscrollpane.css"-->
+
+    <link rel="stylesheet" href="styles/themes/default/style.min.css">
 
     <style>
         html, body {
@@ -39,6 +42,10 @@
             display: flex;
             align-items: center;
             width: 500px;
+        }
+        .close {
+            color: #fff;
+            text-shadow: 0 1px 0 #000;
         }
     </style>
 
@@ -65,6 +72,9 @@
     <script type="text/javascript" src="scripts/dicom2atlas.js"></script>
     <script type="text/javascript" src="scripts/dat.gui.min.js"></script>
 
+    <!-- the jScrollPane script -->
+    <!--script type="text/javascript" src="scripts/jquery.jscrollpane.min.js"></script-->
+
     <script type="text/javascript">
         var CURRENT_FILES;
 
@@ -90,6 +100,7 @@
 
             $('#jstree_div').on("select_node.jstree", function (e, data) {
                 if (data.node.type == 'series') {
+                    $('#myModal').modal('toggle');
                     //console.log("View series" + data.node.id + "requested");
                     CURRENT_FILES = [];
                     for (var patient_id in _all_files) {
@@ -254,12 +265,15 @@
             var myX3D = document.getElementById("MyX3D");
             var myX3DPlaceHolder = document.getElementById("MyX3DPlaceHolder");
             //var ORIGINAL_X3DNODE_HTML = myX3DPlaceHolder.innerHTML;// NOTE: If we get it here everything goes black!
-            myX3D.parentNode.removeChild(myX3D);
+            /*myX3D.parentNode.removeChild(myX3D);
             // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
             myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
                 .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
                 .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
-                .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");
+                .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");*/
+            document.getElementById("voxelAtlas").setAttribute("sliceoverx",slicesOverX);
+            document.getElementById("voxelAtlas").setAttribute("sliceovery",slicesOverY);
+
             // Force reload of scene
             x3dom.reload();
         }
@@ -319,21 +333,25 @@
             var customContainer = document.getElementById('MyX3DComponents');
             customContainer.appendChild(guiWL.domElement);
             guiWL.domElement.setAttribute("style", guiWL.domElement.getAttribute("style") + "position: absolute;right: 0;");
-            console.log(guiWL.domElement);
+            //console.log(guiWL.domElement);
             var wlFolder = guiWL.addFolder('W/L');
             var windowCenter = wlFolder.add(x3domcontrols, 'windowCenter', -2500, 5000, 1).listen();
             var windowWidth = wlFolder.add(x3domcontrols, 'windowWidth', 0, 7500, 1).listen();
             windowCenter.onFinishChange(updateWL);
             windowWidth.onFinishChange(updateWL);
             //wlFolder.open();
+
             $('#myModal').modal();
             $('#jstree_demo_div').jstree();
+
+
+            //$('.jstree-grid-wrapper').jScrollPane();
         }
         window.addEventListener("load", bodyonload, false);
     </script>
 </head>
 <body>
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"
+<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal"
         style="position: absolute;top: 0;left: 0;z-index: 10;">
     Drag,Drop,Pick
 </button>
@@ -344,13 +362,13 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Drag,Drop,Pick</h4>
+                <h4 class="modal-title" id="myModalLabel">Drop your files below and pick the series you want to
+                    visualize:</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
                     <div class="col-md-8">
-                        <p class="lead">Drop your files below and pick the series you want to visualize:</p>
                         <div id="DropArea" class="inner cover"
                              style="text-align: left;background-color: rgba(128,128,128,0.5);">
                             <div id="jstree_div">
@@ -392,23 +410,23 @@
         </div>
     </div>
 </div>
-<div class="fullscreen-bg">
 
+<div class="fullscreen-bg">
     <div class="content">
         <div id="MyX3DComponents" class="col-md-12" style="height: 1000px;">
             <div id="MyX3DPlaceHolder">
                 <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
                      width="100%" height="100%" altImg="helloX3D-alt.png"
-                     style="width: 100%; height: 100%;overflow: hidden">
+                     style="width: 100%; height: 100%;">
                     <Scene id="X3DScene">
-                        <Background skyColor='0.5 0.4 0.5'></Background>
+                        <Background skyColor='0.5 0.5 0.5'></Background>
                         <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
-                        <shape>
+                        <!--shape>
                             <appearance>
                                 <material diffuseColor='0.8 0.9 0.8'></material>
                             </appearance>
                             <box></box>
-                        </shape>
+                        </shape-->
                         <Transform id="volumeTransform">
                             <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
                                 <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
@@ -425,7 +443,7 @@
                 </X3D>
             </div>
             <div style="margin-left: 10px;top: 0;position: absolute;">
-                <!--tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor-->
+                <tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor>
             </div>
             <script>
                 x3dom.reload();
@@ -433,6 +451,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- The following div is made invisible in order to hide temporary images needed for atlas and TF computation -->
 <div id="InvisibleDiv" style="display:none;background:#888888;width:50%;height:50%">
@@ -450,6 +469,8 @@
 <!--script type="text/javascript" src="scripts/CTThresholdSegmentationAll.js"></script-->
 <!--script type="text/javascript" src="scripts/FileSaver.min.js"></script-->
 <!--script type="text/javascript" src="scripts/Runner.js"></script-->
+
+
 <script type="text/javascript">
     // Here we pick up the original HTML Code of our X3D Node
     var ORIGINAL_X3DNODE_HTML = document.getElementById("MyX3DPlaceHolder").innerHTML;
