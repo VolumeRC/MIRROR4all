@@ -43,6 +43,7 @@
             align-items: center;
             width: 500px;
         }
+
         .close {
             color: #fff;
             text-shadow: 0 1px 0 #000;
@@ -266,13 +267,13 @@
             var myX3DPlaceHolder = document.getElementById("MyX3DPlaceHolder");
             //var ORIGINAL_X3DNODE_HTML = myX3DPlaceHolder.innerHTML;// NOTE: If we get it here everything goes black!
             /*myX3D.parentNode.removeChild(myX3D);
-            // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
-            myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
-                .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
-                .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
-                .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");*/
-            document.getElementById("voxelAtlas").setAttribute("sliceoverx",slicesOverX);
-            document.getElementById("voxelAtlas").setAttribute("sliceovery",slicesOverY);
+             // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
+             myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
+             .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
+             .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
+             .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'");*/
+            document.getElementById("voxelAtlas").setAttribute("sliceoverx", slicesOverX);
+            document.getElementById("voxelAtlas").setAttribute("sliceovery", slicesOverY);
 
             // Force reload of scene
             x3dom.reload();
@@ -411,44 +412,42 @@
     </div>
 </div>
 
-<div class="fullscreen-bg">
-    <div class="content">
-        <div id="MyX3DComponents" class="col-md-12" style="height: 1000px;">
-            <div id="MyX3DPlaceHolder">
-                <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
-                     width="100%" height="100%" altImg="helloX3D-alt.png"
-                     style="width: 100%; height: 100%;">
-                    <Scene id="X3DScene">
-                        <Background skyColor='0.5 0.5 0.5'></Background>
-                        <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
-                        <!--shape>
-                            <appearance>
-                                <material diffuseColor='0.8 0.9 0.8'></material>
-                            </appearance>
-                            <box></box>
-                        </shape-->
-                        <Transform id="volumeTransform">
-                            <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
-                                <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
-                                                   slicesOverY='10' id="voxelAtlas" hideChildren="true">
-                                    <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
-                                </ImageTextureAtlas>
-                                <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
-                                    <ImageTexture containerField='transferFunction'>
-                                    </ImageTexture>
-                                </OpacityMapVolumeStyle>
-                            </VolumeData>
-                        </Transform>
-                    </Scene>
-                </X3D>
-            </div>
-            <div style="margin-left: 10px;top: 0;position: absolute;">
-                <tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor>
-            </div>
-            <script>
-                x3dom.reload();
-            </script>
+<div class="content">
+    <div id="MyX3DComponents" class="col-md-12" style="height: 1000px;">
+        <div id="MyX3DPlaceHolder">
+            <X3D id="MyX3D" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false"
+                 width="100%" height="100%" altImg="helloX3D-alt.png"
+                 style="width: 100%; height: 100%;">
+                <Scene id="X3DScene">
+                    <Background skyColor='0.5 0.5 0.5'></Background>
+                    <Viewpoint position='0 0 10' zNear='0.0001' zFar='100'></Viewpoint>
+                    <!--shape>
+                        <appearance>
+                            <material diffuseColor='0.8 0.9 0.8'></material>
+                        </appearance>
+                        <box></box>
+                    </shape-->
+                    <Transform id="volumeTransform">
+                        <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
+                            <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='3'
+                                               slicesOverY='3' id="voxelAtlas" hideChildren="true">
+                                <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
+                            </ImageTextureAtlas>
+                            <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                                <ImageTexture containerField='transferFunction'>
+                                </ImageTexture>
+                            </OpacityMapVolumeStyle>
+                        </VolumeData>
+                    </Transform>
+                </Scene>
+            </X3D>
         </div>
+        <div style="margin-left: 10px;bottom: 110px;position: absolute;">
+            <tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor>
+        </div>
+        <script>
+            x3dom.reload();
+        </script>
     </div>
 </div>
 
@@ -458,9 +457,6 @@
     <canvas width='256' height='10' id='tfCanvas'></canvas>
     <canvas width='256' height='10' id="tfTmpCanvas"></canvas>
     <canvas width='32' height='32' id="tmpCanvas"></canvas>
-    <div id="fullHistogramHolder" style="width:512px;height:100px;display:none;">
-        <canvas id="fullHistogramCanvas" width="255" height="100"></canvas>
-    </div>
 </div>
 
 
