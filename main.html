@@ -287,6 +287,9 @@
             document.getElementById("tf").setAttribute("x3dom-selector", "");
             document.getElementById("tf").setAttribute("x3dom-selector", "#volume");
 
+            //Forc TF redraw
+            document.getElementById("tf")._drawCanvas();
+
             // Force reload of scene
             x3dom.reload();
         }
