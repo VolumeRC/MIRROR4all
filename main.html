@@ -112,33 +112,40 @@
             $('#jstree_div').jstree().grid_hide_column(9);
 
             $('#jstree_div').on("select_node.jstree", function (e, data) {
-                if (data.node.type == 'series') {
-                    $('#myModal').modal('toggle');
-                    //console.log("View series" + data.node.id + "requested");
-                    CURRENT_FILES = [];
-                    for (var patient_id in _all_files) {
-                        for (var study_id in _all_files[patient_id]) {
-                            for (var series_id in _all_files[patient_id][study_id]) {
-                                if (series_id == data.node.id)
-                                    CURRENT_FILES = _all_files[patient_id][study_id][series_id];
+                    if (data.node.type == 'series') {
+                        $('#myModal').modal('toggle');
+
+                        CURRENT_FILES = [];
+                        for (var patient_id in _all_files) {
+                            for (var study_id in _all_files[patient_id]) {
+                                for (var series_id in _all_files[patient_id][study_id]) {
+                                    if (series_id == data.node.id) {
+                                        var sorted_keys = Object.keys(_all_files[patient_id][study_id][series_id]).sort(function(a, b){return a-b});
+                                        for (var slice_location in sorted_keys) {
+                                            console.log(sorted_keys[slice_location]);
+                                            CURRENT_FILES.push(_all_files[patient_id][study_id][series_id][sorted_keys[slice_location]]);
+                                        }
+                                    }
+                                }
                             }
                         }
+                        var numberOfSlices = CURRENT_FILES.length;
+                        var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
+                            slicesOverY = slicesOverX;
+
+                        // Reset the X3D scene declaration, and reload the scene;
+                        resetScene(numberOfSlices, slicesOverX, slicesOverY);
+
+                        // Resulting canvas containing atlas
+                        var voxelCanvas = document.getElementById("voxelCanvas");
+                        var voxelContext = voxelCanvas.getContext("2d");
+
+                        //Now process the dropped files with dicomParser
+                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
                     }
-                    var numberOfSlices = CURRENT_FILES.length;
-                    var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
-                        slicesOverY = slicesOverX;
-
-                    // Reset the X3D scene declaration, and reload the scene;
-                    resetScene(numberOfSlices, slicesOverX, slicesOverY);
-
-                    // Resulting canvas containing atlas
-                    var voxelCanvas = document.getElementById("voxelCanvas");
-                    var voxelContext = voxelCanvas.getContext("2d");
-
-                    //Now process the dropped files with dicomParser
-                    filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
                 }
-            });
+            )
+            ;
         }
 
         // Draw the jstree according to the parsing of the dropped files
@@ -168,7 +175,7 @@
                             + ', "parent": "' + study + '"'
                             + ', "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)"'
                             + ', "type":"series"'
-                            + ', "data":{ "num_images":"'+_jsonDataModel[patient].studies[study].series[series].number_slices+'","modality":"'+_jsonDataModel[patient].studies[study].series[series].modality+'","datetime":"'+_jsonDataModel[patient].studies[study].series[series].datetime+'" }'
+                            + ', "data":{ "num_images":"' + _jsonDataModel[patient].studies[study].series[series].number_slices + '","modality":"' + _jsonDataModel[patient].studies[study].series[series].modality + '","datetime":"' + _jsonDataModel[patient].studies[study].series[series].datetime + '" }'
                             + '}');
                     }
                 }
@@ -244,8 +251,8 @@
                     else { // valid file
                         (_all_files[dump_result[0]] === undefined) ? _all_files[dump_result[0]] = {} : {};
                         (_all_files[dump_result[0]][dump_result[1]] === undefined) ? _all_files[dump_result[0]][dump_result[1]] = {} : {};
-                        (_all_files[dump_result[0]][dump_result[1]][dump_result[2]] === undefined) ? _all_files[dump_result[0]][dump_result[1]][dump_result[2]] = [] : [];
-                        _all_files[dump_result[0]][dump_result[1]][dump_result[2]].push(file);
+                        (_all_files[dump_result[0]][dump_result[1]][dump_result[2]] === undefined) ? _all_files[dump_result[0]][dump_result[1]][dump_result[2]] = {} : {};
+                        _all_files[dump_result[0]][dump_result[1]][dump_result[2]][dump_result[3]] = file;
                     }
                 }
                 catch (err) {
@@ -434,9 +441,9 @@
                     </shape-->
                     <Transform id="volumeTransform">
                         <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
-                            <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='3'
-                                               slicesOverY='3' id="voxelAtlas" hideChildren="true">
-                                <canvas width='1024' height='1024' id='voxelCanvas'></canvas>
+                            <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
+                                               slicesOverY='10' id="voxelAtlas" hideChildren="true">
+                                <canvas width='4096' height='4096' id='voxelCanvas'></canvas>
                             </ImageTextureAtlas>
                             <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
                                 <ImageTexture containerField='transferFunction'>

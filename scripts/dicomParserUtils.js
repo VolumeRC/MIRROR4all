@@ -130,5 +130,5 @@ function dumpToJson(jsonDataModel, dataSet) {
 
     jsonDataModel[patient_id]['studies'][study_id]['series'][series_id]["number_slices"]++;
 
-    return [patient_id, study_id, series_id];
+    return [patient_id, study_id, series_id, Number(dataSet.string(TAG_DICT['SLICELOCATION']))];
 }
