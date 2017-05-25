@@ -48,6 +48,18 @@
             color: #fff;
             text-shadow: 0 1px 0 #000;
         }
+
+        .jstree-grid-wrapper {
+            height: 360px;
+        }
+
+        .drop-tree {
+            text-align: left;
+            background-color: transparent;
+            border: 2px solid white;
+            border-radius: 4px;
+            padding: 0px;
+        }
     </style>
 
     <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/-->
@@ -276,7 +288,7 @@
                 .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
                 .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'")
                 .replace(/<\/scene>[.\s\S]*<\/x3d>/i, "</scene></x3d>")
-                .replace(/<imagetexture [.\s\S]*<\/imagetexture>/i , "<imagetexture containerfield='transferFunction'></imagetexture>");
+                .replace(/<imagetexture [.\s\S]*<\/imagetexture>/i, "<imagetexture containerfield='transferFunction'></imagetexture>");
             //document.getElementById("voxelAtlas").setAttribute("sliceoverx", slicesOverX);
             //document.getElementById("voxelAtlas").setAttribute("sliceovery", slicesOverY);
 
@@ -338,13 +350,6 @@
             });
             $('#jstree_div').jstree().grid_hide_column(9);
 
-            $('#jstree_div').on("select_node.jstree", function (e, data) {
-                if (data.node.type == 'series') {
-                    url = "/en/view/view_series/" + data.node.id + "/";
-                    $(location).attr('href', url);
-                }
-            });
-
             var guiWL = new dat.GUI({autoPlace: false});
             var customContainer = document.getElementById('MyX3DComponents');
             customContainer.appendChild(guiWL.domElement);
@@ -384,22 +389,11 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
-                    <div class="col-md-8">
-                        <div id="DropArea" class="inner cover"
-                             style="text-align: left;background-color: rgba(128,128,128,0.5);">
+                    <div class="col-md-8" style="padding-left: 0;padding-right: 0;">
+                        <div id="DropArea" class="drop-tree">
                             <div id="jstree_div">
                                 <ul>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
                                     <li data-jstree='{"icon":"data/series.png"}'>Drop Your Files here.</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
-                                    <li data-jstree='{"icon":"data/series.png"}'>&nbsp;</li>
                                 </ul>
                             </div>
                         </div>
@@ -408,14 +402,11 @@
                 <div class="row">
                     <div class="col-md-12" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
                         consectetur adipiscing elit. Donec gravida nulla turpis, eget aliquet nibh finibus vitae. In
-                        convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero
-                        quis
+                        convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero quis
                         facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et commodo odio.
                         Curabitur rutrum vel ligula eget vestibulum. Aliquam sed mollis mauris. Aliquam eros nisl,
-                        lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac
-                        tellus
-                        porta, ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi
-                        faucibus
+                        lobortis ut facilisis a, vulputate quis purus. Ut a vulputate leo. Donec dictum massa ac tellus
+                        porta, ac rutrum nibh finibus. Proin tincidunt nisi ut diam pellentesque dapibus. Morbi faucibus
                         purus commodo, pellentesque ipsum eget, placerat turpis.
                     </div>
                 </div>
