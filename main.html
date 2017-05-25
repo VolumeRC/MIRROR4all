@@ -151,14 +151,33 @@
 
             for (var patient in _jsonDataModel) {
                 num_patients++;
-                json_jstree.push('{"id" : "' + patient + '", "parent": "#", "text": "' + _jsonDataModel[patient].patient_name + '", "type":"patient", "state": {"opened":true}, "a_attr" : {"role":"patient"} }');
+                json_jstree.push('{"id" : "' + patient + '"'
+                    + ', "parent": "#"'
+                    + ', "text": "' + _jsonDataModel[patient].patient_name + '"'
+                    + ', "type":"patient"'
+                    + ', "state": {"opened":true}'
+                    + ', "a_attr" : {"role":"patient"} '
+                    //+ ', "data":{ }'
+                    + '}');
                 for (var study in _jsonDataModel[patient].studies) {
                     num_studies++;
-                    json_jstree.push('{"id" : "' + study + '", "parent": "' + patient + '", "text": "' + _jsonDataModel[patient].studies[study].description + '", "type":"study", "state": {"opened":true}, "a_attr" : {"role":"study"} }');
+                    json_jstree.push('{"id" : "' + study + '"'
+                        + ', "parent": "' + patient + '"'
+                        + ', "text": "' + _jsonDataModel[patient].studies[study].description + '"'
+                        + ', "type":"study"'
+                        + ', "state": {"opened":true}'
+                        + ', "a_attr" : {"role":"study"}'
+                        //+ ', "data":{ }'
+                        + ' }');
                     for (var series in _jsonDataModel[patient].studies[study].series) {
                         num_series++;
-                        json_jstree.push('{"id" : "' + series + '", "parent": "' + study + '", "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)", "type":"series"}');
-                        num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
+                        json_jstree.push('{"id" : "' + series + '"'
+                            + ', "parent": "' + study + '"'
+                            + ', "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)"'
+                            + ', "type":"series"'
+                            + ', "data":{ "num_images":"'+_jsonDataModel[patient].studies[study].series[series].number_slices+'","modality":"'+_jsonDataModel[patient].studies[study].series[series].modality+'","datetime":"'+_jsonDataModel[patient].studies[study].series[series].datetime+'" }'
+                            + '}');
+                        //num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
                     }
                 }
             }
@@ -190,16 +209,10 @@
             str += '  "search" : { "show_only_matches" : true, "show_only_matches_children" : true},';
             str += '  "grid" : {';
             str += '    "columns": [';
-            str += '      {"width": 390, "header": "Cases"},';
-            str += '      {"width": 70, "header": "Sex", "value": "sex"},';
-            str += '      {"width": 70, "header": "Age", "value": "age"},';
-            str += '      {"width": 75, "header": "Studies", "value": "num_children"},';
-            str += '      {"width": 70, "header": "Series", "value": "num_series"},';
-            str += '      {"width": 180, "header": "Institution", "value": "institution"},';
-            str += '      {"width": 110, "header": "Acq. date", "value": "datetime"},';
-            str += '      {"width": 75, "header": "Images", "value": "num_images"},';
+            str += '      {"width": 370, "header": "Series"},';
             str += '      {"width": 75, "header": "Modality", "value": "modality"},';
-            str += '      {"width": 75, "header": "Descriptors", "value": "descriptors"}';
+            str += '      {"width": 75, "header": "Images", "value": "num_images"},';
+            str += '      {"width": 110, "header": "Acq. date", "value": "datetime"}';
             str += '    ]';
             str += '  }';
             str += '}';
@@ -335,20 +348,14 @@
                 "search": {"show_only_matches": true, "show_only_matches_children": true},
                 "grid": {
                     columns: [
-                        {width: 390, header: "Cases"},
-                        {width: 70, header: "Sex", value: "sex"},
-                        {width: 70, header: "Age", value: "age"},
-                        {width: 75, header: "Studies", value: "num_children"},
-                        {width: 70, header: "Series", value: "num_series"},
-                        {width: 180, header: "Institution", value: "institution"},
-                        {width: 110, header: "Acq. date", value: "datetime"},
-                        {width: 75, header: "Images", value: "num_images"},
+                        {width: 370, header: "Series"},
                         {width: 75, header: "Modality", value: "modality"},
-                        {width: 75, header: "Descriptors", value: "descriptors"}
+                        {width: 75, header: "Images", value: "num_images"},
+                        {width: 110, header: "Acq. date", value: "datetime"}
                     ]
                 }
             });
-            $('#jstree_div').jstree().grid_hide_column(9);
+            //$('#jstree_div').jstree().grid_hide_column(9);
 
             var guiWL = new dat.GUI({autoPlace: false});
             var customContainer = document.getElementById('MyX3DComponents');
