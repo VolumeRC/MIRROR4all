@@ -9,7 +9,7 @@ Copyright (c) 2016 Vicomtech-IK4. All rights reserved.
 This code may only be used under the Apache License 2.0 found at http://volumerc.github.io/tf-editor/LICENSE.txt
 The complete set of attributions may be found at http://volumerc.github.io/tf-editor/NOTICE
 -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.8.0/d3.min.js"></script>
+    <script type="text/javascript" src="../scripts/d3.4.8.0.min.js"></script>
 
     <!--
     `<tf-editor>`
@@ -91,8 +91,8 @@ The complete set of attributions may be found at http://volumerc.github.io/tf-ed
             <div id="container">
                 <svg id="svg-{{id}}" width$="{{width}}" height$="{{height}}"></svg>
                 <div class="aligned">
-                    <input type="color" id="picker-{{id}}">
-                    <button id="export-{{id}}">Export</button>
+                    <input type="color" id="picker-{{id}}" class="form-control">
+                    <button id="export-{{id}}" type="button" class="btn btn-default">Export</button>
                     <template is="dom-if" if="{{_external}}">
                         <canvas id="canvas-{{id}}" width="255" height="10"></canvas>
                     </template>
@@ -114,7 +114,7 @@ The complete set of attributions may be found at http://volumerc.github.io/tf-ed
                     this.dataScale = d3.scaleLinear();
                     this.dragged = null;
                     this.selected = null;
-                    this.last_color = "green"
+                    this.last_color = "red"
                 },
                 _initializeElements: function () {
                     var a = [0, 255];
@@ -127,8 +127,8 @@ The complete set of attributions may be found at http://volumerc.github.io/tf-ed
                     this.binScale.domain([1, 10]).range([this._height, 0]).base(2).clamp([0, this._height]);
                     this.bins.domain(this.xScale.domain()).thresholds(this.xScale.ticks(this.numberBins));
                     if (this.controlPoints.length == 0) {
-                        this.push("controlPoints", {x: a[0], opacity: 0, color: "blue"});
-                        this.push("controlPoints", {x: a[1], opacity: 1, color: "red"})
+                        this.push("controlPoints", {x: a[0], opacity: 0, color: "black"});
+                        this.push("controlPoints", {x: a[1], opacity: 1, color: "white"})
                     }
                     this.selected = this.controlPoints[0];
                     this.area.x(function (c) {
