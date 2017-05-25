@@ -88,16 +88,17 @@ The complete set of attributions may be found at http://volumerc.github.io/tf-ed
                     stroke: #ff7f0e
                 }
             </style>
-            <div id="container">
+            <div id="container" class="well collapse">
                 <svg id="svg-{{id}}" width$="{{width}}" height$="{{height}}"></svg>
                 <div class="aligned">
-                    <input type="color" id="picker-{{id}}" class="form-control">
+                    <input type="color" id="picker-{{id}}" class="form-control" value="#ff0000">
                     <button id="export-{{id}}" type="button" class="btn btn-default">Export</button>
                     <template is="dom-if" if="{{_external}}">
                         <canvas id="canvas-{{id}}" width="255" height="10"></canvas>
                     </template>
                 </div>
             </div>
+            <button data-toggle="collapse" data-target="#container" class="btn btn-default">TF Editor</button>
         </template>
         <script>
             Polymer({
