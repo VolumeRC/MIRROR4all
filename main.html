@@ -144,13 +144,8 @@
         // Draw the jstree according to the parsing of the dropped files
         function drawTree() {
             var json_jstree = [];
-            var num_patients = 0;
-            var num_studies = 0;
-            var num_series = 0;
-            var num_slices = 0;
 
             for (var patient in _jsonDataModel) {
-                num_patients++;
                 json_jstree.push('{"id" : "' + patient + '"'
                     + ', "parent": "#"'
                     + ', "text": "' + _jsonDataModel[patient].patient_name + '"'
@@ -160,7 +155,6 @@
                     //+ ', "data":{ }'
                     + '}');
                 for (var study in _jsonDataModel[patient].studies) {
-                    num_studies++;
                     json_jstree.push('{"id" : "' + study + '"'
                         + ', "parent": "' + patient + '"'
                         + ', "text": "' + _jsonDataModel[patient].studies[study].description + '"'
@@ -170,14 +164,12 @@
                         //+ ', "data":{ }'
                         + ' }');
                     for (var series in _jsonDataModel[patient].studies[study].series) {
-                        num_series++;
                         json_jstree.push('{"id" : "' + series + '"'
                             + ', "parent": "' + study + '"'
                             + ', "text": "' + _jsonDataModel[patient].studies[study].series[series].description + '  (' + _jsonDataModel[patient].studies[study].series[series].number_slices + ' slice/s)"'
                             + ', "type":"series"'
                             + ', "data":{ "num_images":"'+_jsonDataModel[patient].studies[study].series[series].number_slices+'","modality":"'+_jsonDataModel[patient].studies[study].series[series].modality+'","datetime":"'+_jsonDataModel[patient].studies[study].series[series].datetime+'" }'
                             + '}');
-                        //num_slices += _jsonDataModel[patient].studies[study].series[series].number_slices;
                     }
                 }
             }
