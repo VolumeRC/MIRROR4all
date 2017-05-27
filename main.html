@@ -311,7 +311,7 @@
             document.getElementById("tf").setAttribute("x3dom-selector", "");
             document.getElementById("tf").setAttribute("x3dom-selector", "#volume");
 
-            //Forc TF redraw
+            //Force TF redraw
             document.getElementById("tf")._drawCanvas();
 
             // Force reload of scene
@@ -324,6 +324,15 @@
                 var voxelContext = voxelCanvas.getContext("2d");
                 filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
             }
+        }
+
+        /**
+        * Update the OpacityMapVolumeStyle volume node attributes
+        */
+        function updateOpacityStyle(){
+          let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
+          styleNode.setAttribute("opacityfactor", x3domcontrols.opacityFactor);
+          styleNode.setAttribute("lightfactor", x3domcontrols.lightFactor);
         }
 
         function bodyonload() {
@@ -356,6 +365,12 @@
             });
             //$('#jstree_div').jstree().grid_hide_column(9);
 
+            // Get the initial opacity style values
+            let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
+            x3domcontrols.opacityFactor = +styleNode.getAttribute("opacityfactor");
+            x3domcontrols.lightFactor = +styleNode.getAttribute("lightfactor");
+
+            // Create the controls GUI
             var guiWL = new dat.GUI({autoPlace: false});
             var customContainer = document.getElementById('MyX3DComponents');
             customContainer.appendChild(guiWL.domElement);
@@ -367,6 +382,12 @@
             windowCenter.onFinishChange(updateWL);
             windowWidth.onFinishChange(updateWL);
             //wlFolder.open();
+            // Add a panel to controt the opacity accumulation in the volume rendering
+            let opacityMapVolumeStyleFolder = guiWL.addFolder('OpacityMapVolumeStyle');
+            let opacityFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'opacityFactor', 0, 50, 1).listen();
+            let lightFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'lightFactor', 0, 10, 1).listen();
+            opacityFactor.onFinishChange(updateOpacityStyle);
+            lightFactor.onFinishChange(updateOpacityStyle);
 
             $('#myModal').modal();
             $('#jstree_demo_div').jstree();
