@@ -90,7 +90,7 @@ function launchRefresh() {
 }
 
 // Draws a list of files into an 2D context with given width/height
-function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, invisibleDiv, desiredWindowCenter, desiredWindowWidth) {
+function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, callback_finished, desiredWindowCenter, desiredWindowWidth) {
     // Compute how many slices fit along X and Y axis
     var slicesOverX = Math.ceil(Math.sqrt(files.length));
     var slicesOverY = Math.ceil(Math.sqrt(files.length));
@@ -127,9 +127,7 @@ function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, invisibl
 
             // Fills a temporary canvas with DICOM pixels converted to gray image
             var tmpCanvas = fillImageDataWithCornerstoneImage(image);
-            //invisibleDiv.appendChild(tmpCanvas);
             atlas2DContext.drawImage(tmpCanvas, 0, 0, image.width, image.height, posX * newSliceWidth, posY * newSliceHeight, newSliceWidth, newSliceHeight);
-            //invisibleDiv.removeChild(tmpCanvas);
             cornerstone.imageCache.removeImagePromise(image.imageId);// Save memory by removing image from cache
 
             // Adjusts spacing for volume's 3D aspect ratio (according to current image only)
@@ -139,6 +137,7 @@ function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, invisibl
 
             // Trigger delayed refresh
             launchRefresh();
+            if((nSlice+1) == files.length)callback_finished();
         });
     }
 }

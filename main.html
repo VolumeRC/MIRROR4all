@@ -106,6 +106,12 @@
             $('#jstree_div').jstree("destroy");
         }
 
+        var callback_finished = function () {
+            console.log("All slices rendered!");
+            $('#spinwheel').hide();
+            $('#spinwheel')[0].style.display = "none";
+        }
+
         function fillJstree(content) {
             $('#jstree_div').jstree(content);
 
@@ -114,6 +120,8 @@
             $('#jstree_div').on("select_node.jstree", function (e, data) {
                     if (data.node.type == 'series') {
                         $('#myModal').modal('toggle');
+                        $('#spinwheel')[0].style.display = "block";
+                        $('#spinwheel').show();
 
                         CURRENT_FILES = [];
                         for (var patient_id in _all_files) {
@@ -124,7 +132,7 @@
                                             return a - b
                                         });
                                         for (var slice_location in sorted_keys) {
-                                            console.log(sorted_keys[slice_location]);
+                                            //console.log(sorted_keys[slice_location]);
                                             CURRENT_FILES.push(_all_files[patient_id][study_id][series_id][sorted_keys[slice_location]]);
                                         }
                                     }
@@ -143,7 +151,7 @@
                         var voxelContext = voxelCanvas.getContext("2d");
 
                         //Now process the dropped files with dicomParser
-                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
+                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, callback_finished);
                     }
                 }
             )
@@ -290,8 +298,13 @@
         }
 
         //
-        function oninputfiles(){
+        function oninputfiles() {
             loadFiles($('#inputfiles')[0].files);
+        }
+
+        //
+        function oninputdirectory() {
+            loadFiles($('#inputdirectory')[0].files);
         }
 
         /*
@@ -333,7 +346,7 @@
             if (CURRENT_FILES !== undefined) {
                 var voxelCanvas = document.getElementById("voxelCanvas");
                 var voxelContext = voxelCanvas.getContext("2d");
-                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
+                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, x3domcontrols.windowCenter, x3domcontrols.windowWidth, callback_finished);
             }
         }
 
@@ -450,8 +463,6 @@
         <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M109.99999999999997,84.37822173508931L84.99999999999994,41.07695154586739" stroke-width="25" stroke-linecap="round" opacity="0.0">
             <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="2.75s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
         </path>
-        <!--animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="2.8s" repeatCount="indefinite"/-->
-
 </svg>
 </div>
 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal"
@@ -472,8 +483,14 @@
                 <div class="row">
                     <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
                     <div class="col-md-8" style="padding-left: 0;padding-right: 0;">
+                        <div class="row">
+                            <div class="col-md-6"><input type="file" id="inputfiles" multiple
+                                                         onchange="oninputfiles()"/></div>
+                            <div class="col-md-6"><input type="file" id="inputdirectory" webkitdirectory mozdirectory
+                                                         msdirectory odirectory directory
+                                                         onchange="oninputdirectory()"/></div>
+                        </div>
                         <div id="DropArea" class="drop-tree">
-                            <input type="file" id="inputfiles" multiple onchange="oninputfiles()"/>
                             <div id="jstree_div">
                                 <ul>
                                     <li data-jstree='{"icon":"data/series.png"}'>Drop Your Files here.</li>
@@ -483,7 +500,10 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
+                    <div class="col-md-12" style="text-align: left;"><h4>Disclaimer:</h4>
+                        This page is still under construction, use it at your own risk, no image data is transfered from
+                        your device.
+                        Lorem ipsum dolor sit amet,
                         consectetur adipiscing elit. Donec gravida nulla turpis, eget aliquet nibh finibus vitae. In
                         convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero quis
                         facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et commodo odio.
