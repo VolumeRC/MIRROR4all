@@ -58,7 +58,7 @@
             background-color: transparent;
             border: 2px solid white;
             border-radius: 4px;
-            padding: 0px;
+            padding: 0;
         }
     </style>
 
@@ -120,7 +120,9 @@
                             for (var study_id in _all_files[patient_id]) {
                                 for (var series_id in _all_files[patient_id][study_id]) {
                                     if (series_id == data.node.id) {
-                                        var sorted_keys = Object.keys(_all_files[patient_id][study_id][series_id]).sort(function(a, b){return a-b});
+                                        var sorted_keys = Object.keys(_all_files[patient_id][study_id][series_id]).sort(function (a, b) {
+                                            return a - b
+                                        });
                                         for (var slice_location in sorted_keys) {
                                             console.log(sorted_keys[slice_location]);
                                             CURRENT_FILES.push(_all_files[patient_id][study_id][series_id][sorted_keys[slice_location]]);
@@ -268,19 +270,28 @@
         }
 
         // Handles multiple DICOM files drop on element and converts them into an atlas
-        function divondrop(dropEvent) {
-            // Also needed to prevent the drop target element from triggering default action on dropped files (download)
-            dropEvent.stopPropagation();
-            dropEvent.preventDefault();
-            _total_files = dropEvent.dataTransfer.files.length;
-            var array_of_files = dropEvent.dataTransfer.files;
+        function loadFiles(array_of_files) {
+            _total_files = array_of_files.length;
             for (var i = 0; i < array_of_files.length; i++) {
                 //console.log("file: " + array_of_files[i]);
                 parse_file(array_of_files[i]);
             }
-
             //Comment out to disable segmentation
             //Runner.filter.setInputFile(event.dataTransfer.files);
+        }
+
+        // Handles multiple DICOM files drop on element and converts them into an atlas
+        function divondrop(dropEvent) {
+            // Also needed to prevent the drop target element from triggering default action on dropped files (download)
+            dropEvent.stopPropagation();
+            dropEvent.preventDefault();
+
+            loadFiles(dropEvent.dataTransfer.files);
+        }
+
+        //
+        function oninputfiles(){
+            loadFiles($('#inputfiles')[0].files);
         }
 
         /*
@@ -327,12 +338,12 @@
         }
 
         /**
-        * Update the OpacityMapVolumeStyle volume node attributes
-        */
-        function updateOpacityStyle(){
-          let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
-          styleNode.setAttribute("opacityfactor", x3domcontrols.opacityFactor);
-          styleNode.setAttribute("lightfactor", x3domcontrols.lightFactor);
+         * Update the OpacityMapVolumeStyle volume node attributes
+         */
+        function updateOpacityStyle() {
+            let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
+            styleNode.setAttribute("opacityfactor", x3domcontrols.opacityFactor);
+            styleNode.setAttribute("lightfactor", x3domcontrols.lightFactor);
         }
 
         function bodyonload() {
@@ -389,6 +400,7 @@
             opacityFactor.onFinishChange(updateOpacityStyle);
             lightFactor.onFinishChange(updateOpacityStyle);
 
+            $('#spinwheel').hide();
             $('#myModal').modal();
             $('#jstree_demo_div').jstree();
 
@@ -399,6 +411,49 @@
     </script>
 </head>
 <body>
+<div class="spinner" id="spinwheel"
+     style="background-color: black;position: absolute;top: 0;left: 0;width: 100vw;height: 100vh;z-index: 100;">
+    <svg version="1.1" id="svg-spinner" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" xml:space="preserve" width="300" height="300" style="top: 0;position: absolute;left: 0;right: 0;bottom: 0;margin: auto;">
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M145,75L145,25" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="0s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M180,84.37822173508928L205,41.07695154586736" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="0.25s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M205.6217782649107,110L248.92304845413264,85" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="0.5s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M215,145L265,145" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="0.75s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M205.62177826491072,180L248.92304845413264,204.99999999999997" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="1.0s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M180.00000000000003,205.6217782649107L205.00000000000006,248.9230484541326" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="1.25s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M145,215L145,265" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="1.5s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M110.00000000000001,205.62177826491072L85.00000000000003,248.92304845413264" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="1.75s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M84.37822173508931,180.00000000000003L41.07695154586739,205.00000000000006" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="2.0s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M75,145L25,145.00000000000003" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="2.25s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M84.37822173508927,110.00000000000004L41.07695154586732,85.00000000000007" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="2.5s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M109.99999999999997,84.37822173508931L84.99999999999994,41.07695154586739" stroke-width="25" stroke-linecap="round" opacity="0.0">
+            <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="2.75s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
+        </path>
+        <!--animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="2.8s" repeatCount="indefinite"/-->
+
+</svg>
+</div>
 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal"
         style="position: absolute;top: 0;left: 0;z-index: 10;">
     Drag,Drop,Pick
@@ -423,6 +478,7 @@
                                     <li data-jstree='{"icon":"data/series.png"}'>Drop Your Files here.</li>
                                 </ul>
                             </div>
+                            <input type="file" id="inputfiles" multiple onchange="oninputfiles()"/>
                         </div>
                     </div>
                 </div>
