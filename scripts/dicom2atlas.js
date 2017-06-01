@@ -22,9 +22,6 @@ var CURRENT_TIMEOUT_ATLAS, CURRENT_TIMEOUT_TF;
 // NOTE: we store the value after applying slope/intercept that could change in different slices of the same series
 var CURRENT_SERIES_MIN, CURRENT_SERIES_MAX;
 
-// Histogram bins of current series
-var CURRENT_SERIES_HISTOGRAM;
-
 // Converts DICOM pixel data to image gray pixels and puts then into an HTML Image Canvas
 function fillImageDataWithCornerstoneImage(image) {
     var dicomPixels = image.getPixelData();
@@ -37,16 +34,13 @@ function fillImageDataWithCornerstoneImage(image) {
     for (var i = 0; i < dicomPixels.length; i++) {
         // To Hounsfield Units (for CT)
         var HU = image.slope * dicomPixels[i] + image.intercept;
-        if(CURRENT_SERIES_HISTOGRAM[HU] === undefined)
-            CURRENT_SERIES_HISTOGRAM[HU]=1;
-        else CURRENT_SERIES_HISTOGRAM[HU]+=1;
 
         // Apply Window/Level
         var wlHU = (((HU - (CURRENT_IMAGE_WINDOWCENTER - 0.5)) / (CURRENT_IMAGE_WINDOWWIDTH - 1.0)) + 0.5) * 255.0;
 
         // Store in new array
         rgbaPixels[4 * i + 0] = wlHU;
-        rgbaPixels[4 * i + 1] = wlHU;
+        rgbaPixels[4 * i + 1] = 0;
         rgbaPixels[4 * i + 2] = wlHU;
         rgbaPixels[4 * i + 3] = 255;
     }
@@ -69,13 +63,15 @@ function doRefresh() {
     document.getElementById("voxelAtlas")._x3domNode.invalidateGLObject();
     // Normalize spacing to fit in a 1.0^3 box
     var maxCurrentImageSpacing = Math.max.apply(null, CURRENT_IMAGE_SPACING);
-    CURRENT_IMAGE_SPACING = CURRENT_IMAGE_SPACING.map(function (x) { return x / maxCurrentImageSpacing; });
+    CURRENT_IMAGE_SPACING = CURRENT_IMAGE_SPACING.map(function (x) {
+        return x / maxCurrentImageSpacing;
+    });
     document.getElementById("volumeTransform").setAttribute("scale", CURRENT_IMAGE_SPACING[0] + "," + CURRENT_IMAGE_SPACING[1] + "," + CURRENT_IMAGE_SPACING[2]);
 }
 
 // Applies the corresponding portion of the TF depending on current WW/WC values
 function applyColor() {
-    if(x3domcontrols !== undefined) { //TODO: should be defined in this file
+    if (x3domcontrols !== undefined) { //TODO: should be defined in this file
         x3domcontrols.windowCenter = CURRENT_IMAGE_WINDOWCENTER;
         x3domcontrols.windowWidth = CURRENT_IMAGE_WINDOWWIDTH;
     }
@@ -83,11 +79,27 @@ function applyColor() {
 
 // Triggers delayed refresh of TF and ATLAS
 function launchRefresh() {
-    clearTimeout(CURRENT_TIMEOUT_ATLAS);
-    clearTimeout(CURRENT_TIMEOUT_TF);
-    CURRENT_TIMEOUT_ATLAS = setTimeout(doRefresh, 300);
-    CURRENT_TIMEOUT_TF = setTimeout(applyColor,1000);
+    //clearTimeout(CURRENT_TIMEOUT_ATLAS);
+    //clearTimeout(CURRENT_TIMEOUT_TF);
+    //CURRENT_TIMEOUT_ATLAS = setTimeout(doRefresh, 300);
+    //CURRENT_TIMEOUT_TF = setTimeout(applyColor,1000);
 }
+
+
+function start_worker(msg) {
+    worker.postMessage({'cmd': 'start', 'msg': "at:"+new Date()+msg});
+}
+
+function stop_worker() {
+    // worker.terminate() from this script would also stop the worker.
+    worker.postMessage({'cmd': 'stop', 'msg': 'Bye'});
+}
+
+var worker = new Worker('scripts/doWork2.js');
+
+worker.addEventListener('message', function (e) {
+    console.log(e.data);
+}, false);
 
 // Draws a list of files into an 2D context with given width/height
 function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, callback_finished, desiredWindowCenter, desiredWindowWidth) {
@@ -107,37 +119,45 @@ function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, callback
 
         // Load image (promise) with cornerstone
         cornerstone.loadAndCacheImage(imageId).then(function (image) {
-            // Get current slice number and compute its corresponding position in the atlas
-            var nSlice = imageIds.indexOf(image.imageId);
-            var posX = nSlice % slicesOverX;
-            var posY = Math.floor(nSlice / slicesOverX);
+            var d=new Date();
+                // Get current slice number and compute its corresponding position in the atlas
+                var nSlice = imageIds.indexOf(image.imageId);
+                var posX = nSlice % slicesOverX;
+                var posY = Math.floor(nSlice / slicesOverX);
 
-            // Take current image WW/WC
-            if(desiredWindowCenter === undefined)
-                CURRENT_IMAGE_WINDOWCENTER = image.windowCenter;
-            else CURRENT_IMAGE_WINDOWCENTER = desiredWindowCenter;
-            if(desiredWindowWidth === undefined)
-                CURRENT_IMAGE_WINDOWWIDTH = image.windowWidth;
-            else CURRENT_IMAGE_WINDOWWIDTH = desiredWindowWidth;
+                // Take current image WW/WC
+                if (desiredWindowCenter === undefined)
+                    CURRENT_IMAGE_WINDOWCENTER = image.windowCenter;
+                else CURRENT_IMAGE_WINDOWCENTER = desiredWindowCenter;
+                if (desiredWindowWidth === undefined)
+                    CURRENT_IMAGE_WINDOWWIDTH = image.windowWidth;
+                else CURRENT_IMAGE_WINDOWWIDTH = desiredWindowWidth;
 
-            // Initialize current series histogram, min and max values
-            CURRENT_SERIES_HISTOGRAM = {};
-            CURRENT_SERIES_MIN = Number.MAX_SAFE_INTEGER;
-            CURRENT_SERIES_MAX = Number.MIN_SAFE_INTEGER;
+                // Initialize current series histogram, min and max values
+                CURRENT_SERIES_MIN = Number.MAX_SAFE_INTEGER;
+                CURRENT_SERIES_MAX = Number.MIN_SAFE_INTEGER;
+            start_worker('Img A:'+nSlice+" "+(new Date()-d));
+                // Fills a temporary canvas with DICOM pixels converted to gray image
+                var tmpCanvas = fillImageDataWithCornerstoneImage(image);
+            start_worker('Img B:'+nSlice+" "+(new Date()-d));
+                atlas2DContext.drawImage(tmpCanvas, 0, 0, image.width, image.height, posX * newSliceWidth, posY * newSliceHeight, newSliceWidth, newSliceHeight);
+            start_worker('Img C:'+nSlice+" "+(new Date()-d));
+                cornerstone.imageCache.removeImagePromise(image.imageId);// Save memory by removing image from cache
+            start_worker('Img D:'+nSlice+" "+(new Date()-d));
 
-            // Fills a temporary canvas with DICOM pixels converted to gray image
-            var tmpCanvas = fillImageDataWithCornerstoneImage(image);
-            atlas2DContext.drawImage(tmpCanvas, 0, 0, image.width, image.height, posX * newSliceWidth, posY * newSliceHeight, newSliceWidth, newSliceHeight);
-            cornerstone.imageCache.removeImagePromise(image.imageId);// Save memory by removing image from cache
+                // Adjusts spacing for volume's 3D aspect ratio (according to current image only)
+                CURRENT_IMAGE_SPACING[0] = image.columns * image.columnPixelSpacing;
+                CURRENT_IMAGE_SPACING[1] = image.rows * image.rowPixelSpacing;
+                CURRENT_IMAGE_SPACING[2] = files.length * Number(image.data.string('x00180050'));
 
-            // Adjusts spacing for volume's 3D aspect ratio (according to current image only)
-            CURRENT_IMAGE_SPACING[0] = image.columns * image.columnPixelSpacing;
-            CURRENT_IMAGE_SPACING[1] = image.rows * image.rowPixelSpacing;
-            CURRENT_IMAGE_SPACING[2] = files.length * Number(image.data.string('x00180050'));
+                // Trigger delayed refresh
+                launchRefresh();
 
-            // Trigger delayed refresh
-            launchRefresh();
-            if((nSlice+1) == files.length)callback_finished();
-        });
+                if ((nSlice + 1) == files.length) {
+                    callback_finished();
+                    //stop_worker();
+                }
+            }
+        );
     }
 }
