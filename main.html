@@ -306,7 +306,7 @@
 
             // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
             myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
-                .replace(/<imagetextureatlas [.\s\S]*<\/imagetextureatlas>/i, "<imagetextureatlas containerfield='voxels' id='voxelAtlas' numberOfSlices='1' slicesOverX='1' slicesOverY='1' hideChildren='true'><canvas width='1024' height='1024' id='voxelCanvas'></canvas></imagetextureatlas>")
+                .replace(/<imagetextureatlas [.\s\S]*<\/imagetextureatlas>/i, "<imagetextureatlas containerfield='voxels' id='voxelAtlas' numberOfSlices='1' slicesOverX='1' slicesOverY='1' hideChildren='true'><canvas width='4096' height='4096' id='voxelCanvas'></canvas></imagetextureatlas>")
                 .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
                 .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
                 .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'")
