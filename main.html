@@ -143,7 +143,13 @@
                         var voxelContext = voxelCanvas.getContext("2d");
 
                         //Now process the dropped files with dicomParser
-                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"));
+                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"))
+                          .then(function(){
+                            // Update the TF histogram
+                            getHistData().then(function(data){
+                              document.getElementById("tf").setData(data);
+                            });
+                          });
                     }
                 }
             )
@@ -329,11 +335,29 @@
             x3dom.reload();
         }
 
+        async function getHistData(){
+          return new Promise(function(resolve, reject) {
+            var voxelCanvas = document.getElementById("voxelCanvas");
+            var voxelContext = voxelCanvas.getContext("2d");
+            let imgData = voxelContext.getImageData(0, 0, voxelCanvas.width, voxelCanvas.height);
+            let imageFlattenArray = [];
+            for (let i = 0, n = imgData.data.length; i < n; i +=4) {
+              imageFlattenArray.push(imgData.data[i]);
+            }
+            resolve(imageFlattenArray);
+          });
+        }
+
         function updateWL(value) {
             if (CURRENT_FILES !== undefined) {
                 var voxelCanvas = document.getElementById("voxelCanvas");
                 var voxelContext = voxelCanvas.getContext("2d");
                 filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
+
+                // Update the TF histogram
+                getHistData().then(function(data){
+                  document.getElementById("tf").setData(data);
+                });
             }
         }
 
@@ -532,7 +556,7 @@
             </X3D>
         </div>
         <div style="margin-left: 10px;bottom: 110px;position: absolute;">
-            <tf-editor id="tf" width="400" x3dom-selector="#volume"></tf-editor>
+            <tf-editor id="tf" number-bins="50" width="400" x3dom-selector="#volume"></tf-editor>
         </div>
         <script>
             x3dom.reload();
