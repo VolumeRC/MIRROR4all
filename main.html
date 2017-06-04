@@ -312,7 +312,7 @@
 
             // Replace original numberOfSlices/slicesOverX/slicesOverY CURRENT_TF_VALUES with current ones
             myX3DPlaceHolder.innerHTML = ORIGINAL_X3DNODE_HTML
-                .replace(/<imagetextureatlas [.\s\S]*<\/imagetextureatlas>/i, "<imagetextureatlas containerfield='voxels' id='voxelAtlas' numberOfSlices='1' slicesOverX='1' slicesOverY='1' hideChildren='true'><canvas width='4096' height='4096' id='voxelCanvas'></canvas></imagetextureatlas>")
+                .replace(/<imagetextureatlas [.\s\S]*<\/imagetextureatlas>/i, "<imagetextureatlas containerfield='voxels' id='voxelAtlas' numberOfSlices='1' slicesOverX='1' slicesOverY='1' hideChildren='true'><canvas width='2048' height='2048' id='voxelCanvas'></canvas></imagetextureatlas>")
                 .replace(/numberOfSlices=.[\d]*./i, "numberOfSlices='" + numberOfSlices + "'")
                 .replace(/slicesOverX=.[\d]*./i, "slicesOverX='" + slicesOverX + "'")
                 .replace(/slicesOverY=.[\d]*./i, "slicesOverY='" + slicesOverY + "'")
@@ -327,9 +327,6 @@
             //Force selector change to add the new canvas 2d context
             document.getElementById("tf").setAttribute("x3dom-selector", "");
             document.getElementById("tf").setAttribute("x3dom-selector", "#volume");
-
-            //Force TF redraw
-            document.getElementById("tf")._drawCanvas();
 
             // Force reload of scene
             x3dom.reload();
@@ -544,7 +541,7 @@
                         <VolumeData id='volume' dimensions='4.0 4.0 4.0'>
                             <ImageTextureAtlas containerField='voxels' numberOfSlices='96' slicesOverX='10'
                                                slicesOverY='10' id="voxelAtlas" hideChildren="true">
-                                <canvas width='4096' height='4096' id='voxelCanvas'></canvas>
+                                <canvas width='2048' height='2048' id='voxelCanvas'></canvas>
                             </ImageTextureAtlas>
                             <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
                                 <ImageTexture containerField='transferFunction'>
@@ -556,7 +553,7 @@
             </X3D>
         </div>
         <div style="margin-left: 10px;bottom: 110px;position: absolute;">
-            <tf-editor id="tf" number-bins="50" width="400" x3dom-selector="#volume"></tf-editor>
+            <tf-editor id="tf" number-bins="50" width="400" x3dom-selector="#volume" control-points='[{"x":0,"opacity":0,"color":"black"}, {"x":255,"opacity":1,"color":"white"}]'></tf-editor>
         </div>
         <script>
             x3dom.reload();
