@@ -106,6 +106,44 @@
             $('#jstree_div').jstree("destroy");
         }
 
+        function loadTFModality(modality) {
+            //console.log("Modality="+modality);
+            var tf = document.getElementById("tf");
+            if (tf !== undefined) {
+                tf.controlPoints = [];
+                switch (modality) {
+                    case "CT":
+                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 100, opacity: 0.4, color: "brown"});
+                        tf.controlPoints.push({x: 200, opacity: 0.6, color: "pink"});
+                        tf.controlPoints.push({x: 240, opacity: 0.8, color: "yellow"});
+                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        break;
+                    case "PT":
+                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 63, opacity: 0.7, color: "red"});
+                        tf.controlPoints.push({x: 127, opacity: 0.7, color: "orange"});
+                        tf.controlPoints.push({x: 190, opacity: 0.7, color: "yellow"});
+                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        break;
+                    case "MR":
+                        tf.controlPoints.push({x: 0.0 * 255, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 0.2 * 255, opacity: 0.0, color: "blue"});
+                        tf.controlPoints.push({x: 0.5 * 255, opacity: 0.8, color: "green"});
+                        tf.controlPoints.push({x: 0.6 * 255, opacity: 0.8, color: "yellow"});
+                        tf.controlPoints.push({x: 0.8 * 255, opacity: 0.8, color: "orange"});
+                        tf.controlPoints.push({x: 0.9 * 255, opacity: 0.9, color: "red"});
+                        tf.controlPoints.push({x: 1.0 * 255, opacity: 1.0, color: "pink"});
+                        break;
+                    default:
+                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        break;
+                }
+                tf._redraw();
+            }
+        }
+
         function fillJstree(content) {
             $('#jstree_div').jstree(content);
 
@@ -114,6 +152,8 @@
             $('#jstree_div').on("select_node.jstree", function (e, data) {
                     if (data.node.type == 'series') {
                         $('#myModal').modal('toggle');
+                        $('#spinwheel')[0].style.display = "block";
+                        $('#spinwheel').show();
 
                         CURRENT_FILES = [];
                         for (var patient_id in _all_files) {
@@ -124,13 +164,15 @@
                                             return a - b
                                         });
                                         for (var slice_location in sorted_keys) {
-                                            console.log(sorted_keys[slice_location]);
+                                            //console.log(sorted_keys[slice_location]);
                                             CURRENT_FILES.push(_all_files[patient_id][study_id][series_id][sorted_keys[slice_location]]);
                                         }
                                     }
                                 }
                             }
                         }
+                        loadTFModality(data.node.data.modality);
+
                         var numberOfSlices = CURRENT_FILES.length;
                         var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
                             slicesOverY = slicesOverX;
@@ -143,17 +185,19 @@
                         var voxelContext = voxelCanvas.getContext("2d");
 
                         //Now process the dropped files with dicomParser
-                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"))
-                          .then(function(){
+                        filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height)
+                          .then(function() {
                             // Update the TF histogram
-                            getHistData().then(function(data){
+                            getHistData().then(function(data) {
                               document.getElementById("tf").setData(data);
                             });
+                            console.log("All slices rendered!");
+                            $('#spinwheel').hide();
+                            $('#spinwheel')[0].style.display = "none";
                           });
                     }
                 }
-            )
-            ;
+            );
         }
 
         // Draw the jstree according to the parsing of the dropped files
@@ -231,6 +275,13 @@
         // Update the progress bar and the jstree (if applies) according to the parsing of the dropped files
         function updateTree() {
             _files_added++;
+            //console.log(_files_added + "/" + _total_files);
+
+            var new_width = (_files_added * 100) / _total_files;
+            var percentage_new_width = new_width.toFixed(0);
+            $("#progressBarLoad").width(percentage_new_width+ "%");
+            $("#progressBarLoad").text(percentage_new_width + "%");
+
 
             // Is this the last file?
             if (_files_added == _total_files) {
@@ -278,10 +329,15 @@
         // Handles multiple DICOM files drop on element and converts them into an atlas
         function loadFiles(array_of_files) {
             _total_files = array_of_files.length;
+
+            $("#progressBarLoad").width("0%");
+            $("#progressBarLoad").text("0%");
+
             for (var i = 0; i < array_of_files.length; i++) {
                 //console.log("file: " + array_of_files[i]);
                 parse_file(array_of_files[i]);
             }
+
             //Comment out to disable segmentation
             //Runner.filter.setInputFile(event.dataTransfer.files);
         }
@@ -296,8 +352,13 @@
         }
 
         //
-        function oninputfiles(){
+        function oninputfiles() {
             loadFiles($('#inputfiles')[0].files);
+        }
+
+        //
+        function oninputdirectory() {
+            loadFiles($('#inputdirectory')[0].files);
         }
 
         /*
@@ -349,12 +410,17 @@
             if (CURRENT_FILES !== undefined) {
                 var voxelCanvas = document.getElementById("voxelCanvas");
                 var voxelContext = voxelCanvas.getContext("2d");
-                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, document.getElementById("InvisibleDiv"), x3domcontrols.windowCenter, x3domcontrols.windowWidth);
 
-                // Update the TF histogram
-                getHistData().then(function(data){
-                  document.getElementById("tf").setData(data);
-                });
+                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, x3domcontrols.windowCenter, x3domcontrols.windowWidth)
+                  .then(function() {
+                    // Update the TF histogram
+                    getHistData().then(function(data){
+                      document.getElementById("tf").setData(data);
+                    });
+                    console.log("All slices rendered!");
+                    $('#spinwheel').hide();
+                    $('#spinwheel')[0].style.display = "none";
+                  });
             }
         }
 
@@ -433,7 +499,8 @@
 </head>
 <body>
 <div class="spinner" id="spinwheel"
-     style="background-color: black;position: absolute;top: 0;left: 0;width: 100vw;height: 100vh;z-index: 100;">
+     style="background-color: black;position: absolute;top: 0;left: 0;width: 100vw;height: 100vh;z-index: 100;"
+     onclick="$('#spinwheel').hide()">
     <svg version="1.1" id="svg-spinner" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" xml:space="preserve" width="300" height="300" style="top: 0;position: absolute;left: 0;right: 0;bottom: 0;margin: auto;">
         <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M145,75L145,25" stroke-width="25" stroke-linecap="round" opacity="0.0">
             <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="0s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
@@ -471,8 +538,6 @@
         <path style="stroke-linecap: round;" fill="none" stroke="#ffffff" d="M109.99999999999997,84.37822173508931L84.99999999999994,41.07695154586739" stroke-width="25" stroke-linecap="round" opacity="0.0">
             <animate attributeName="opacity" attributeType="CSS" from="0.9" to="0.0" begin="2.75s" dur="3s" fill="remove" repeatCount="indefinite"></animate>
         </path>
-        <!--animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="2.8s" repeatCount="indefinite"/-->
-
 </svg>
 </div>
 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal"
@@ -493,8 +558,20 @@
                 <div class="row">
                     <div class="col-md-4"><img src="data/head.png" alt="" width="100%"/></div>
                     <div class="col-md-8" style="padding-left: 0;padding-right: 0;">
+                            <div id="progressLoad" class="progress col-md-12" style="padding-left:0px;padding-right:0px;">
+                                <div id="progressBarLoad" class="progress-bar progress-bar-striped active" role="progressbar"
+                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                    0%
+                                </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-6"><input type="file" id="inputfiles" multiple
+                                                         onchange="oninputfiles()"/></div>
+                            <div class="col-md-6"><input type="file" id="inputdirectory" webkitdirectory mozdirectory
+                                                         msdirectory odirectory directory
+                                                         onchange="oninputdirectory()"/></div>
+                        </div>
                         <div id="DropArea" class="drop-tree">
-                            <input type="file" id="inputfiles" multiple onchange="oninputfiles()"/>
                             <div id="jstree_div">
                                 <ul>
                                     <li data-jstree='{"icon":"data/series.png"}'>Drop Your Files here.</li>
@@ -504,7 +581,10 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12" style="text-align: left;"><h4>Disclaimer:</h4> Lorem ipsum dolor sit amet,
+                    <div class="col-md-12" style="text-align: left;"><h4>Disclaimer:</h4>
+                        This page is still under construction, use it at your own risk, no image data is transfered from
+                        your device.
+                        Lorem ipsum dolor sit amet,
                         consectetur adipiscing elit. Donec gravida nulla turpis, eget aliquet nibh finibus vitae. In
                         convallis diam a sem luctus fermentum. Vivamus sed lectus nunc. Nullam tristique, libero quis
                         facilisis egestas, mi ex aliquam erat, ut tempus diam nisi vel magna. Etiam et commodo odio.
