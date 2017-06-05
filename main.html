@@ -413,11 +413,11 @@
 
                 filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, x3domcontrols.windowCenter, x3domcontrols.windowWidth)
                   .then(function() {
-                    // Update the TF histogram
+                    // Update the TF histogram (async)
                     getHistData().then(function(data){
                       document.getElementById("tf").setData(data);
                     });
-                    console.log("All slices rendered!");
+                    // At this point all the slices have been rendered
                     $('#spinwheel').hide();
                     $('#spinwheel')[0].style.display = "none";
                   });
