@@ -110,37 +110,38 @@
             //console.log("Modality="+modality);
             var tf = document.getElementById("tf");
             if (tf !== undefined) {
-                tf.controlPoints = [];
+                var controlPoints = [];
                 switch (modality) {
                     case "CT":
-                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
-                        tf.controlPoints.push({x: 100, opacity: 0.4, color: "brown"});
-                        tf.controlPoints.push({x: 200, opacity: 0.6, color: "pink"});
-                        tf.controlPoints.push({x: 240, opacity: 0.8, color: "yellow"});
-                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        controlPoints.push({x: 100, opacity: 0.4, color: "brown"});
+                        controlPoints.push({x: 200, opacity: 0.6, color: "pink"});
+                        controlPoints.push({x: 240, opacity: 0.8, color: "yellow"});
+                        controlPoints.push({x: 255, opacity: 1.0, color: "white"});
                         break;
                     case "PT":
-                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
-                        tf.controlPoints.push({x: 63, opacity: 0.7, color: "red"});
-                        tf.controlPoints.push({x: 127, opacity: 0.7, color: "orange"});
-                        tf.controlPoints.push({x: 190, opacity: 0.7, color: "yellow"});
-                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        controlPoints.push({x: 63, opacity: 0.7, color: "red"});
+                        controlPoints.push({x: 127, opacity: 0.7, color: "orange"});
+                        controlPoints.push({x: 190, opacity: 0.7, color: "yellow"});
+                        controlPoints.push({x: 255, opacity: 1.0, color: "white"});
                         break;
                     case "MR":
-                        tf.controlPoints.push({x: 0.0 * 255, opacity: 0.0, color: "black"});
-                        tf.controlPoints.push({x: 0.2 * 255, opacity: 0.0, color: "blue"});
-                        tf.controlPoints.push({x: 0.5 * 255, opacity: 0.8, color: "green"});
-                        tf.controlPoints.push({x: 0.6 * 255, opacity: 0.8, color: "yellow"});
-                        tf.controlPoints.push({x: 0.8 * 255, opacity: 0.8, color: "orange"});
-                        tf.controlPoints.push({x: 0.9 * 255, opacity: 0.9, color: "red"});
-                        tf.controlPoints.push({x: 1.0 * 255, opacity: 1.0, color: "pink"});
+                        controlPoints.push({x: 0.0 * 255, opacity: 0.0, color: "black"});
+                        controlPoints.push({x: 0.2 * 255, opacity: 0.0, color: "blue"});
+                        controlPoints.push({x: 0.5 * 255, opacity: 0.8, color: "green"});
+                        controlPoints.push({x: 0.6 * 255, opacity: 0.8, color: "yellow"});
+                        controlPoints.push({x: 0.8 * 255, opacity: 0.8, color: "orange"});
+                        controlPoints.push({x: 0.9 * 255, opacity: 0.9, color: "red"});
+                        controlPoints.push({x: 1.0 * 255, opacity: 1.0, color: "pink"});
                         break;
                     default:
-                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
-                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        controlPoints.push({x: 255, opacity: 1.0, color: "white"});
                         break;
                 }
-                tf._redraw();
+                tf.setAttribute("control-points", JSON.stringify(controlPoints));
+                //tf._redraw();
             }
         }
 
@@ -187,11 +188,11 @@
                         //Now process the dropped files with dicomParser
                         filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height)
                           .then(function() {
-                            // Update the TF histogram
+                            // Update the TF histogram (async)
                             getHistData().then(function(data) {
                               document.getElementById("tf").setData(data);
                             });
-                            console.log("All slices rendered!");
+                            // At this point all the slices have been rendered
                             $('#spinwheel').hide();
                             $('#spinwheel')[0].style.display = "none";
                           });
@@ -417,9 +418,6 @@
                     getHistData().then(function(data){
                       document.getElementById("tf").setData(data);
                     });
-                    // At this point all the slices have been rendered
-                    $('#spinwheel').hide();
-                    $('#spinwheel')[0].style.display = "none";
                   });
             }
         }
