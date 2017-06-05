@@ -112,6 +112,40 @@
             $('#spinwheel')[0].style.display = "none";
         }
 
+        function loadTFModality(modality) {
+            //console.log("Modality="+modality);
+            var tf = document.getElementById("tf");
+            if(tf !== undefined){
+                tf.controlPoints = [];
+                switch (modality){
+                    case "CT":
+                        tf.controlPoints.push({x:   0, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 100, opacity: 0.4, color: "brown"});
+                        tf.controlPoints.push({x: 200, opacity: 0.6, color: "pink"});
+                        tf.controlPoints.push({x: 240, opacity: 0.8, color: "yellow"});
+                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        break;
+                    case "PT":
+                        tf.controlPoints.push({x: 0, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 63, opacity: 0.7, color: "red"});
+                        tf.controlPoints.push({x: 127, opacity: 0.7, color: "orange"});
+                        tf.controlPoints.push({x: 190, opacity: 0.7, color: "yellow"});
+                        tf.controlPoints.push({x: 255, opacity: 1.0, color: "white"});
+                        break;
+                    case "MR":
+                        tf.controlPoints.push({x: 0.0*255, opacity: 0.0, color: "black"});
+                        tf.controlPoints.push({x: 0.2*255, opacity: 0.0, color: "blue"});
+                        tf.controlPoints.push({x: 0.5*255, opacity: 0.8, color: "green"});
+                        tf.controlPoints.push({x: 0.6*255, opacity: 0.8, color: "yellow"});
+                        tf.controlPoints.push({x: 0.8*255, opacity: 0.8, color: "orange"});
+                        tf.controlPoints.push({x: 0.9*255, opacity: 0.9, color: "red"});
+                        tf.controlPoints.push({x: 1.0*255, opacity: 1.0, color: "pink"});
+                        break;
+                }
+                tf._redraw();
+            }
+        }
+
         function fillJstree(content) {
             $('#jstree_div').jstree(content);
 
@@ -139,6 +173,8 @@
                                 }
                             }
                         }
+                        loadTFModality(data.node.data.modality);
+
                         var numberOfSlices = CURRENT_FILES.length;
                         var slicesOverX = Math.ceil(Math.sqrt(numberOfSlices)),
                             slicesOverY = slicesOverX;
@@ -154,7 +190,7 @@
                         filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, callback_finished);
                     }
                 }
-            )            ;
+            );
         }
 
         // Draw the jstree according to the parsing of the dropped files
@@ -283,6 +319,7 @@
                 //console.log("file: " + array_of_files[i]);
                 parse_file(array_of_files[i]);
             }
+
             //Comment out to disable segmentation
             //Runner.filter.setInputFile(event.dataTransfer.files);
         }
