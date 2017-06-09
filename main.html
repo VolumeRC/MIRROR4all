@@ -64,7 +64,8 @@
 
     <!--link rel="stylesheet" type="text/css" href="styles/x3dom.css"/-->
     <!--link rel="stylesheet" type="text/css" href="https://x3dom.org/download/dev/x3dom.css"/-->
-    <script type="text/javascript" src="scripts/x3dom-full.js"></script>
+    <!--script type="text/javascript" src="scripts/x3dom-full.js"></script-->
+    <script type="text/javascript" src="scripts/x3dom-full.debug.js"></script>
 
     <script src="scripts/webcomponents-lite.min.js"></script>
     <link rel="import" href="components/polymer.html">
@@ -621,7 +622,7 @@
                                                slicesOverY='10' id="voxelAtlas" hideChildren="true">
                                 <canvas width='2048' height='2048' id='voxelCanvas'></canvas>
                             </ImageTextureAtlas>
-                            <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
+                            <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0' imageSlope='1.0' imageIntercept='-1024.0' imageWindowCenter='70.0' imageWindowCenter='450.0'>
                                 <ImageTexture containerField='transferFunction'>
                                 </ImageTexture>
                             </OpacityMapVolumeStyle>

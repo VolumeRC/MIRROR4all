@@ -21,28 +21,28 @@ var CURRENT_TIMEOUT_ATLAS, CURRENT_TIMEOUT_TF;
 
 // Store the series minimum and maximum values
 // NOTE: we store the value after applying slope/intercept that could change in different slices of the same series
-var CURRENT_SERIES_MIN, CURRENT_SERIES_MAX;
+//var CURRENT_SERIES_MIN, CURRENT_SERIES_MAX;
 
 // Converts DICOM pixel data to image gray pixels and puts then into an HTML Image Canvas
 function fillImageDataWithCornerstoneImage(image) {
     var dicomPixels = image.getPixelData();
     var rgbaPixels = new Uint8ClampedArray(4 * dicomPixels.length);
 
-    CURRENT_SERIES_MIN = Math.min(CURRENT_SERIES_MIN, image.slope * image.minPixelValue + image.intercept);
-    CURRENT_SERIES_MAX = Math.max(CURRENT_SERIES_MAX, image.slope * image.maxPixelValue + image.intercept);
+    //CURRENT_SERIES_MIN = Math.min(CURRENT_SERIES_MIN, image.slope * image.minPixelValue + image.intercept);
+    //CURRENT_SERIES_MAX = Math.max(CURRENT_SERIES_MAX, image.slope * image.maxPixelValue + image.intercept);
 
     // For each pixel in current image
     for (var i = 0; i < dicomPixels.length; i++) {
         // To Hounsfield Units (for CT)
-        var HU = image.slope * dicomPixels[i] + image.intercept;
+        //var HU = image.slope * dicomPixels[i] + image.intercept;
 
         // Apply Window/Level
-        var wlHU = (((HU - (CURRENT_IMAGE_WINDOWCENTER - 0.5)) / (CURRENT_IMAGE_WINDOWWIDTH - 1.0)) + 0.5) * 255.0;
+        //var wlHU = (((HU - (CURRENT_IMAGE_WINDOWCENTER - 0.5)) / (CURRENT_IMAGE_WINDOWWIDTH - 1.0)) + 0.5) * 255.0;
 
         // Store in new array
-        rgbaPixels[4 * i + 0] = wlHU;
-        rgbaPixels[4 * i + 1] = wlHU;
-        rgbaPixels[4 * i + 2] = wlHU;
+        rgbaPixels[4 * i + 0] = dicomPixels[i]%256;
+        rgbaPixels[4 * i + 1] = Math.floor(dicomPixels[i]/256)%256;
+        rgbaPixels[4 * i + 2] = Math.floor(dicomPixels[i]/(256*256));
         rgbaPixels[4 * i + 3] = 255;
     }
 
@@ -60,7 +60,7 @@ function fillImageDataWithCornerstoneImage(image) {
 }
 
 // Refreshes X3DOM to take into account new atlas contents and dimensions
-async function doRefresh() {
+function doRefresh() {
     return new Promise(function(resolve, reject){
         document.getElementById("voxelAtlas")._x3domNode.invalidateGLObject();
         // Normalize spacing to fit in a 1.0^3 box
@@ -105,6 +105,15 @@ async function filesToAtlas(files, atlas2DContext, atlas_width, atlas_height, de
 
         // Load image (promise) with cornerstone
         slicePromiseList.push(cornerstone.loadAndCacheImage(imageId).then(function(image) {
+            //console.log("sizeInBytes="+image.sizeInBytes);
+            //console.log("minPixelValue="+image.minPixelValue);
+            //console.log("maxPixelValue="+image.maxPixelValue);
+            //console.log("color="+image.color);
+            //console.log("size=("+image.rows+","+image.columns+")");
+            //console.log("bytes/pixel="+image.sizeInBytes/(image.rows*image.columns));
+            //console.log("slope="+image.slope);
+            //console.log("intercept="+image.intercept);
+
             // Get current slice number and compute its corresponding position in the atlas
             var nSlice = imageIds.indexOf(image.imageId);
             var posX = nSlice % slicesOverX;
