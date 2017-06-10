@@ -60627,7 +60627,7 @@ x3dom.registerNodeType(
                         "uniform float light"+l+"_ShadowIntensity;\n";
                 }
                 uniformsText +=
-                    "const float Steps = 60.0;\n"+
+                    "const float Steps = 500.0;\n"+
                     "const float numberOfSlices = "+ numberOfSlices.toPrecision(5)+";\n"+
                     "const float slicesOverX = " + slicesOverX.toPrecision(5) +";\n"+
                     "const float slicesOverY = " + slicesOverY.toPrecision(5) +";\n";
