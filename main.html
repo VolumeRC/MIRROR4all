@@ -409,18 +409,9 @@
         }
 
         function updateWL(value) {
-            if (CURRENT_FILES !== undefined) {
-                var voxelCanvas = document.getElementById("voxelCanvas");
-                var voxelContext = voxelCanvas.getContext("2d");
-
-                filesToAtlas(CURRENT_FILES, voxelContext, voxelCanvas.width, voxelCanvas.height, x3domcontrols.windowCenter, x3domcontrols.windowWidth)
-                  .then(function() {
-                    // Update the TF histogram (async)
-                    getHistData().then(function(data){
-                      document.getElementById("tf").setData(data);
-                    });
-                  });
-            }
+            let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
+            styleNode.setAttribute("imageWindowCenter", x3domcontrols.windowCenter);
+            styleNode.setAttribute("imageWindowWidth", x3domcontrols.windowWidth);
         }
 
         /**
