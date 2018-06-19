@@ -130,5 +130,11 @@ function dumpToJson(jsonDataModel, dataSet) {
 
     jsonDataModel[patient_id]['studies'][study_id]['series'][series_id]["number_slices"]++;
 
-    return [patient_id, study_id, series_id, Number(dataSet.string(TAG_DICT['SLICELOCATION']))];
+    var slice_location = jsonDataModel[patient_id]['studies'][study_id]['series'][series_id]["number_slices"];
+    if(dataSet.string(TAG_DICT['SLICELOCATION']) !== undefined )
+        slice_location = Number(dataSet.string(TAG_DICT['SLICELOCATION']));
+    else
+        slice_location = Number(dataSet.string(TAG_DICT['IMAGEPOSITIONPATIENT']).split("\\")[2]);
+
+    return [patient_id, study_id, series_id, slice_location];
 }
