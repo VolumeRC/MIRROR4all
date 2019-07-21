@@ -431,6 +431,15 @@
             styleNode.setAttribute("lightfactor", x3domcontrols.lightFactor);
         }
 
+        function updateMPRVolumeStyle() {
+          document.getElementById("planeA").setAttribute("position", x3domcontrols.planeAPos);
+          document.getElementById("planeA").setAttribute("enabled", x3domcontrols.planeAEnabled);
+          document.getElementById("planeB").setAttribute("position", x3domcontrols.planeBPos);
+          document.getElementById("planeB").setAttribute("enabled", x3domcontrols.planeBEnabled);
+          document.getElementById("planeC").setAttribute("position", x3domcontrols.planeCPos);
+          document.getElementById("planeC").setAttribute("enabled", x3domcontrols.planeCEnabled);
+        }
+
         function bodyonload() {
             // Set handlers for required drop events
             document.getElementById("DropArea").addEventListener("drop", divondrop);
@@ -462,9 +471,15 @@
             //$('#jstree_div').jstree().grid_hide_column(9);
 
             // Get the initial opacity style values
-            let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
-            x3domcontrols.opacityFactor = +styleNode.getAttribute("opacityfactor");
-            x3domcontrols.lightFactor = +styleNode.getAttribute("lightfactor");
+            // let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
+            // x3domcontrols.opacityFactor = +styleNode.getAttribute("opacityfactor");
+            // x3domcontrols.lightFactor = +styleNode.getAttribute("lightfactor");
+            x3domcontrols.planeAPos = +document.getElementById("planeA").getAttribute("position");
+            x3domcontrols.planeAEnabled = Boolean(document.getElementById("planeA").getAttribute("enabled"));
+            x3domcontrols.planeBPos = +document.getElementById("planeB").getAttribute("position");
+            x3domcontrols.planeBEnabled = Boolean(document.getElementById("planeB").getAttribute("enabled"));
+            x3domcontrols.planeCPos = +document.getElementById("planeC").getAttribute("position");
+            x3domcontrols.planeCEnabled = Boolean(document.getElementById("planeC").getAttribute("enabled"));
 
             // Create the controls GUI
             var guiWL = new dat.GUI({autoPlace: false});
@@ -478,12 +493,26 @@
             windowCenter.onFinishChange(updateWL);
             windowWidth.onFinishChange(updateWL);
             //wlFolder.open();
+
             // Add a panel to controt the opacity accumulation in the volume rendering
-            let opacityMapVolumeStyleFolder = guiWL.addFolder('OpacityMapVolumeStyle');
-            let opacityFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'opacityFactor', 0, 50, 1).listen();
-            let lightFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'lightFactor', 0, 10, 1).listen();
-            opacityFactor.onFinishChange(updateOpacityStyle);
-            lightFactor.onFinishChange(updateOpacityStyle);
+            // let opacityMapVolumeStyleFolder = guiWL.addFolder('OpacityMapVolumeStyle');
+            // let opacityFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'opacityFactor', 0, 50, 1).listen();
+            // let lightFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'lightFactor', 0, 10, 1).listen();
+            // opacityFactor.onFinishChange(updateOpacityStyle);
+            // lightFactor.onFinishChange(updateOpacityStyle);
+            let mprVolumeStyleFolder = guiWL.addFolder('MPRVolumeStyle');
+            let mprPlaneAPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeAPos', 0, 1, 0.1).listen();
+            let mprPlaneAEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeAEnabled').listen();
+            let mprPlaneBPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeBPos', 0, 1, 0.1).listen();
+            let mprPlaneBEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeBEnabled').listen();
+            let mprPlaneCPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeCPos', 0, 1, 0.1).listen();
+            let mprPlaneCEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeCEnabled').listen();
+            mprPlaneAPos.onChange(updateMPRVolumeStyle);
+            mprPlaneAEnabled.onFinishChange(updateMPRVolumeStyle);
+            mprPlaneBPos.onChange(updateMPRVolumeStyle);
+            mprPlaneBEnabled.onFinishChange(updateMPRVolumeStyle);
+            mprPlaneCPos.onChange(updateMPRVolumeStyle);
+            mprPlaneCEnabled.onFinishChange(updateMPRVolumeStyle);
 
             $('#spinwheel').hide();
             $('#myModal').modal();
@@ -631,10 +660,12 @@
                                                slicesOverY='10' id="voxelAtlas" hideChildren="true">
                                 <canvas width='2048' height='2048' id='voxelCanvas'></canvas>
                             </ImageTextureAtlas>
-                            <OpacityMapVolumeStyle lightFactor='1.2' opacityFactor='6.0'>
-                                <ImageTexture containerField='transferFunction'>
-                                </ImageTexture>
-                            </OpacityMapVolumeStyle>
+                            <MPRVolumeStyle forceOpaque="true">
+                              <ImageTexture containerField='transferFunction'></ImageTexture>
+                              <MPRPlane id="planeA" normal='0.0 1.0 0.0' position='0.5'></MPRPlane>
+                              <MPRPlane id="planeB" normal='1.0 0.0 0.0' position='0.5'></MPRPlane>
+                              <MPRPlane id="planeC" normal='0.0 0.0 1.0' position='0.5'></MPRPlane>
+                            </MPRVolumeStyle>
                         </VolumeData>
                     </Transform>
                 </Scene>
