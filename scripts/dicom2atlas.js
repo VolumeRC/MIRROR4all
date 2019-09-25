@@ -5,6 +5,7 @@
 var X3DOMControls = function() {
   this.windowCenter = 0;
   this.windowWidth = 0;
+  this.style = 'OpacityVolumeStyle';
 };
 
 var x3domcontrols = new X3DOMControls();

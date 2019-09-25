@@ -19,7 +19,7 @@
 
     <!-- styles needed by jScrollPane -->
     <!--link rel="stylesheet" href="styles/jquery.jscrollpane.css"-->
-
+    <link rel="stylesheet" href="styles/dat.gui.css">
     <link rel="stylesheet" href="styles/themes/default/style.min.css">
 
     <style>
@@ -100,6 +100,7 @@
         var _total_files = 0;
         var _files_added = 0;
         var _all_files = {};
+        var _gui = {};
 
         function destroyJstree() {
             $('#jstree_div').empty();
@@ -272,7 +273,6 @@
             fillJstree(JSON.parse(str));
         }
 
-
         // Update the progress bar and the jstree (if applies) according to the parsing of the dropped files
         function updateTree() {
             _files_added++;
@@ -440,6 +440,48 @@
           document.getElementById("planeC").setAttribute("enabled", x3domcontrols.planeCEnabled);
         }
 
+        function updateStyle(style){
+            switch (style) {
+                case "OpacityMapVolumeStyle":
+                    let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
+                    x3domcontrols.opacityFactor = +styleNode.getAttribute("opacityfactor");
+                    x3domcontrols.lightFactor = +styleNode.getAttribute("lightfactor");
+
+                    let opacityMapVolumeStyleFolder = _gui.root.addFolder('OpacityMapVolumeStyle');
+                    let opacityFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'opacityFactor', 0, 50, 1).listen();
+                    let lightFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'lightFactor', 0, 10, 1).listen();
+                    opacityFactor.onFinishChange(updateOpacityStyle);
+                    lightFactor.onFinishChange(updateOpacityStyle);
+                    break;
+                case "MPRVolumeStyle":
+                    // Init values
+                    x3domcontrols.planeAPos = +document.getElementById("planeA").getAttribute("position");
+                    x3domcontrols.planeAEnabled = Boolean(document.getElementById("planeA").getAttribute("enabled"));
+                    x3domcontrols.planeBPos = +document.getElementById("planeB").getAttribute("position");
+                    x3domcontrols.planeBEnabled = Boolean(document.getElementById("planeB").getAttribute("enabled"));
+                    x3domcontrols.planeCPos = +document.getElementById("planeC").getAttribute("position");
+                    x3domcontrols.planeCEnabled = Boolean(document.getElementById("planeC").getAttribute("enabled"));
+
+                    let mprVolumeStyleFolder = _gui.root.addFolder('MPRVolumeStyle');
+                    let mprPlaneAPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeAPos', 0, 1, 0.1).listen();
+                    let mprPlaneAEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeAEnabled').listen();
+                    let mprPlaneBPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeBPos', 0, 1, 0.1).listen();
+                    let mprPlaneBEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeBEnabled').listen();
+                    let mprPlaneCPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeCPos', 0, 1, 0.1).listen();
+                    let mprPlaneCEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeCEnabled').listen();
+                    mprPlaneAPos.onChange(updateMPRVolumeStyle);
+                    mprPlaneAEnabled.onFinishChange(updateMPRVolumeStyle);
+                    mprPlaneBPos.onChange(updateMPRVolumeStyle);
+                    mprPlaneBEnabled.onFinishChange(updateMPRVolumeStyle);
+                    mprPlaneCPos.onChange(updateMPRVolumeStyle);
+                    mprPlaneCEnabled.onFinishChange(updateMPRVolumeStyle);
+                    break
+                default:
+                    break;
+            }
+            x3domcontrols.style = style;
+        }
+
         function bodyonload() {
             // Set handlers for required drop events
             document.getElementById("DropArea").addEventListener("drop", divondrop);
@@ -470,49 +512,25 @@
             });
             //$('#jstree_div').jstree().grid_hide_column(9);
 
-            // Get the initial opacity style values
-            // let styleNode = document.getElementById("volume").getElementsByTagName("OpacityMapVolumeStyle")[0];
-            // x3domcontrols.opacityFactor = +styleNode.getAttribute("opacityfactor");
-            // x3domcontrols.lightFactor = +styleNode.getAttribute("lightfactor");
-            x3domcontrols.planeAPos = +document.getElementById("planeA").getAttribute("position");
-            x3domcontrols.planeAEnabled = Boolean(document.getElementById("planeA").getAttribute("enabled"));
-            x3domcontrols.planeBPos = +document.getElementById("planeB").getAttribute("position");
-            x3domcontrols.planeBEnabled = Boolean(document.getElementById("planeB").getAttribute("enabled"));
-            x3domcontrols.planeCPos = +document.getElementById("planeC").getAttribute("position");
-            x3domcontrols.planeCEnabled = Boolean(document.getElementById("planeC").getAttribute("enabled"));
-
             // Create the controls GUI
-            var guiWL = new dat.GUI({autoPlace: false});
+            _gui.root = new dat.GUI({autoPlace: false});
             var customContainer = document.getElementById('MyX3DComponents');
-            customContainer.appendChild(guiWL.domElement);
-            guiWL.domElement.setAttribute("style", guiWL.domElement.getAttribute("style") + "position: absolute;right: 0;");
+            customContainer.appendChild(_gui.root.domElement);
+            _gui.root.domElement.setAttribute("style", _gui.root.domElement.getAttribute("style") + "position: absolute;right: 0;");
+            let selectedStyleGui = _gui.root.add(x3domcontrols, 'style', [ 'OpacityMapVolumeStyle', 'MPRVolumeStyle' ] ).listen();
+            selectedStyleGui.onChange(updateStyle);
+
             //console.log(guiWL.domElement);
-            var wlFolder = guiWL.addFolder('W/L');
+
+            // Create controls for W/L
+            var wlFolder = _gui.root.addFolder('W/L');
             var windowCenter = wlFolder.add(x3domcontrols, 'windowCenter', -2500, 5000, 1).listen();
             var windowWidth = wlFolder.add(x3domcontrols, 'windowWidth', 0, 7500, 1).listen();
             windowCenter.onFinishChange(updateWL);
             windowWidth.onFinishChange(updateWL);
             //wlFolder.open();
 
-            // Add a panel to controt the opacity accumulation in the volume rendering
-            // let opacityMapVolumeStyleFolder = guiWL.addFolder('OpacityMapVolumeStyle');
-            // let opacityFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'opacityFactor', 0, 50, 1).listen();
-            // let lightFactor = opacityMapVolumeStyleFolder.add(x3domcontrols, 'lightFactor', 0, 10, 1).listen();
-            // opacityFactor.onFinishChange(updateOpacityStyle);
-            // lightFactor.onFinishChange(updateOpacityStyle);
-            let mprVolumeStyleFolder = guiWL.addFolder('MPRVolumeStyle');
-            let mprPlaneAPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeAPos', 0, 1, 0.1).listen();
-            let mprPlaneAEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeAEnabled').listen();
-            let mprPlaneBPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeBPos', 0, 1, 0.1).listen();
-            let mprPlaneBEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeBEnabled').listen();
-            let mprPlaneCPos = mprVolumeStyleFolder.add(x3domcontrols, 'planeCPos', 0, 1, 0.1).listen();
-            let mprPlaneCEnabled = mprVolumeStyleFolder.add(x3domcontrols, 'planeCEnabled').listen();
-            mprPlaneAPos.onChange(updateMPRVolumeStyle);
-            mprPlaneAEnabled.onFinishChange(updateMPRVolumeStyle);
-            mprPlaneBPos.onChange(updateMPRVolumeStyle);
-            mprPlaneBEnabled.onFinishChange(updateMPRVolumeStyle);
-            mprPlaneCPos.onChange(updateMPRVolumeStyle);
-            mprPlaneCEnabled.onFinishChange(updateMPRVolumeStyle);
+            updateStyle("MPRVolumeStyle");
 
             $('#spinwheel').hide();
             $('#myModal').modal();
